@@ -87,33 +87,39 @@ function activateGoggles() {
         }
       }
 
+      function newShape(point) {
+        var p = untransform(point.x, point.y),
+        shape = {
+          x: p.x,
+          y: p.y,
+          s: 10,
+          a: 1,
+          r:0,g:0,b:0
+        };
+
+        shapes.push(shape);
+        drawShape(canvas.getContext('2d'), shape.x,shape.y,shape.s,shape.a,shape.r,shape.g,shape.b);
+      }
+
       canvas = $("<canvas>").css({
           position: "fixed",
           "z-index": "100000",
           top: "0",
           left: "0"
         }).appendTo(document.body)[0];
-      canvas.onmousedown = function(ev) {
-        var point = pointsFromEv(ev),
-        // TODO: breaks because chrome interprets it as an absolute document
-        // position while fx interprets it wrt. screen position
-            p = untransform(point.x, point.y),
-            shape = {
-              x: p.x,
-              y: p.y,
-              s: 10,
-              a: 1,
-              r:0,g:0,b:0
-            };
 
-        shapes.push(shape);
-        drawShape(canvas.getContext('2d'), shape.x,shape.y,shape.s,shape.a,shape.r,shape.g,shape.b);
+      var drawing = false;
+      canvas.onmousedown = function(ev) {
+        newShape(pointsFromEv(ev));
+        drawing = true;
       };
       canvas.onmouseup = function(ev) {
-
+        drawing = false;
       };
       canvas.onmousemove = function(ev) {
-
+        if (drawing) {
+          newShape(pointsFromEv(ev));
+        }
       };
       function resizeCanvas() {
         // window has this:
