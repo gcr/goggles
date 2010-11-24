@@ -7,16 +7,26 @@ function activateGoggles() {
           return action.apply(bindee, Array.prototype.slice.call(arguments));
         };
       }
+      function pointsFromEv(ev) {
+        // given an event object, return the point's XY coordinates relative to
+        // the screen
+        if ('clientX' in ev) { // Firefox
+          return [ev.clientX, ev.clientY];
+        } else if ('offsetX' in ev) { // Opera
+          return [ev.offsetX, ev.offsetY];
+        }
+      }
+
 
       // SHAPES
-      function Shape(t, r,g,b,a) {
+      function Shape(thickness, r,g,b,a) {
+        // Takes a position, thickness, and rgba colors
         // Each shape looks like this:
         // {p: [ [x,y], [x,y], [x,y], ...], points
         //  t: 5                            thickness
         //  r: 250, g: 200, b: 125, a: 0.5  color
         // }
-        // give it a position, thickness, and rgba colors
-        this.t = t;
+        this.t = thickness;
         this.r=r;
         this.g=g;
         this.b=b;
@@ -86,14 +96,13 @@ function activateGoggles() {
 
         this.shapes = [];
         // the list of shapes to draw.
-        this.curshape = null;
 
         // Center coordinate
         // Guess at where the text probably is
         this.centerCoord = 0;
-        this.recalculateCenter();
 
         // Events
+        this.curshape = null;
         this.canvas.onmousedown = bind(this, function(ev) {
           this.curshape = new Shape(5, 0,0,0,1);
         });
@@ -104,7 +113,7 @@ function activateGoggles() {
         this.canvas.onmousemove = bind(this, function(ev) {
           if (this.curshape) {
             this.curshape.appendPoint(
-              this.untransform(this.pointsFromEv(ev)));
+              this.untransform(pointsFromEv(ev)));
             this.curshape.drawLast(this.ctx);
           }
         });
@@ -151,54 +160,6 @@ function activateGoggles() {
           p[1]+window.scrollY
         ];
       };
-
-      // Drawing functions
-      Goggles.prototype.redraw = function() {
-        // Redraw entire canvas
-        var ctx = this.ctx;
-        // clear
-        this.resetCanvasXform();
-        for (var i=0,l=this.shapes.length; i<l; i++) {
-          var bb = this.shapes[i].boundingBox();
-          // clip invisible shapes
-          if (bb.right - window.scrollX + this.centerCoord > 0 &&
-              bb.left - window.scrollX + this.centerCoord < this.canvas.width &&
-              bb.bottom - window.scrollY > 0 &&
-              bb.top - window.scrollY < this.canvas.height) {
-            this.shapes[i].draw(ctx);
-          }
-        }
-
-      };
-
-      // Event handling
-      Goggles.prototype.pointsFromEv = function(ev) {
-        if ('clientX' in ev) { // Firefox
-          return [ev.clientX, ev.clientY];
-        } else if ('offsetX' in ev) { // Opera
-          return [ev.offsetX, ev.offsetY];
-        }
-      };
-
-
-      //////// INIT
-      Goggles.prototype.resetCanvasXform = function() {
-        this.ctx.setTransform(1,0,
-                              0,1,  0, 0);
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.setTransform(1,0,
-                              0,1,
-          this.centerCoord-window.scrollX,
-          -window.scrollY);
-      };
-      Goggles.prototype.resizeCanvas = function() {
-        // Fix the canvas when resized
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        this.recalculateCenter();
-        this.redraw();
-      };
-
       Goggles.prototype.recalculateCenter = function() {
         // this calculates what X-coordinate will be the 'focus' of our web
         // page.
@@ -225,6 +186,40 @@ function activateGoggles() {
         );
       };
 
+      // Drawing functions
+      Goggles.prototype.redraw = function() {
+        // Redraw entire canvas
+        var ctx = this.ctx;
+        // clear
+        this.resetCanvasXform();
+        for (var i=0,l=this.shapes.length; i<l; i++) {
+          var bb = this.shapes[i].boundingBox();
+          // clip invisible shapes
+          if (bb.right - window.scrollX + this.centerCoord > 0 &&
+              bb.left - window.scrollX + this.centerCoord < this.canvas.width &&
+              bb.bottom - window.scrollY > 0 &&
+              bb.top - window.scrollY < this.canvas.height) {
+            this.shapes[i].draw(ctx);
+          }
+        }
+
+      };
+      Goggles.prototype.resetCanvasXform = function() {
+        this.ctx.setTransform(1,0,
+                              0,1,  0, 0);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.setTransform(1,0,
+                              0,1,
+          this.centerCoord-window.scrollX,
+          -window.scrollY);
+      };
+      Goggles.prototype.resizeCanvas = function() {
+        // Fix the canvas when resized
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.recalculateCenter();
+        this.redraw();
+      };
 
       window.goggles = new Goggles();
 
