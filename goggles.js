@@ -4,102 +4,127 @@ function activateGoggles() {
       window.goggled = true;
 
       var canvas;     // the canvas element
-      var shapes=[];  // the list of shapes to draw
+      var shapes=[];  // the list of shapes to draw. each shape is just a point
+      // or circle; as part of a line.
       // each shape looks like this:
-      // {x: 0,
-      //  y: 0,
-      //  s: 10,                   radius (size)
-      //  a: 0.5,                  alpha
-      //  r: 250, g: 200, b: 125   color
+      // {p: [ [x,y], [x,y], [x,y], ...], pixels
+      //  t: 5                            thickness
+      //  r: 250, g: 200, b: 125, a: 0.5  color
       // }
-      
-      // for testing
       shapes = [
-        {x: 0, y: 30, s: 50, a: 1, r: 255, g:0,b:0},
-        {x: 250, y: 99, s: 50, a: 0.5, r:0, g:0,b:0},
-        {x: 100,y:500,s:25,a:0.75,r:0,g:0,b:0}
+        {p: [ [0,0], [25, 350], [300, 90], [-55, 500]],
+         t: 5,
+         r:0,g:0,b:0,a:0.5}
       ];
-
-      //for (var i=0; i<10000; i++) {
-      //  shapes.push(
-      //    {x: (Math.random()*2000)-1000,
-      //     y: Math.random()*1000,
-      //     s: Math.random()*10,
-      //     a: Math.random(),
-      //     r:0,g:0,b:0});
-      //}
-      //console.log(shapes[100]);
-
-      function transform(x, y) {
-        // given an absolute point, return the point's position on the screen
-        return {
-          x: x-window.scrollX + (canvas.width/2),
-          y: y-window.scrollY
-        };
+      
+      // Point transformation functions
+      // Establish a new coordinate system. (0, 0) is at the top MIDDLE of
+      // the page, +x is right and -x is left.
+      // This accomodates pages that have fixed-width or centered layouts.
+      // todo: actually I would really like this to be relative to either
+      // the left of the content or the middle of the page.
+      function transform(p) {
+        // Given an absolute point, return the point's position on the screen
+        return [
+          p[0]-window.scrollX + (canvas.width/2),
+          p[1]-window.scrollY
+        ];
+      }
+      function untransform(p) {
+        // Given an point wrt the screen, return the point's absolute position
+        return [
+          p[0]+window.scrollX - (canvas.width/2),
+          p[1]+window.scrollY
+        ];
       }
 
-      function untransform(x, y) {
-        // given an point wrt the screen, return the point's absolute position
-        return {
-          x: x+window.scrollX - (canvas.width/2),
-          y: y+window.scrollY
-        };
-      }
-
-      function drawShape(ctx, x,y,s,a,r,g,b) {
-        // x, y, size (radius), alpha, red, green, blue
-        var p = transform(x, y);
-        if ((p.x + s) > 0 &&
-            (p.y + s) > 0 &&
-            (p.x - s) < canvas.width &&
-            (p.y - s) < canvas.height) {
-          ctx.fillStyle = "rgba("+r+","+g+","+b+","+a+")";
+      // Drawing functions
+      function drawShape(ctx, shape) {
+        // Draw a given shape if it is in view.
+//      if ((p.x + shape.s) > 0 &&
+//          (p.y + shape.s) > 0 &&
+//          (p.x - shape.s) < canvas.width &&
+//          (p.y - shape.s) < canvas.height) {
+          ctx.strokeStyle = "rgba("+shape.r+","+shape.g+","+shape.b+","+shape.a+")";
+          ctx.lineWidth = shape.t;
+          ctx.lineCap = "round";
           ctx.beginPath();
-          ctx.arc( p.x, p.y, s, 0, 2*Math.PI, true);
-          ctx.fill();
-        }
+          ctx.moveTo.apply(ctx, transform(shape.p[0]));
+          for (var i=0,l=shape.p.length; i<l; i++) {
+            ctx.lineTo.apply(ctx, transform(shape.p[i]));
+          }
+          ctx.stroke();
+//       }
       }
 
       function redraw() {
+        // Redraw entire canvas
         var ctx = canvas.getContext('2d');
         // clear
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // establish a new coordinate system. (0, 0) is at the top MIDDLE of
-        // the page, +x is right and -x is left.
-        // this accomodates pages that have fixed-width or centered layouts.
-
-        // todo: actually I would really like this to be relative to either
-        // the left of the content or the middle of the page.
-
         for (var i=0,l=shapes.length; i<l; i++) {
           var shape = shapes[i];
-          drawShape(ctx, shape.x, shape.y, shape.s, shape.a, shape.r, shape.g, shape.b);
+          drawShape(ctx, shape);
         }
 
       }
 
+      // Event handling
       function pointsFromEv(ev) {
         if ('clientX' in ev) { // Firefox
-          return {x: ev.clientX, y: ev.clientY};
+          return [ev.clientX, ev.clientY];
         } else if ('offsetX' in ev) { // Opera
-          return {x: ev.offsetX, y: ev.offsetY};
+          return [ev.offsetX, ev.offsetY];
         }
       }
-
       function newShape(point) {
-        var p = untransform(point.x, point.y),
+        // Create and return a new shape.
+        var p = {x: untransform(point)[0],
+                 y: untransform(point)[1]},
         shape = {
-          x: p.x,
-          y: p.y,
-          s: 10,
-          a: 1,
-          r:0,g:0,b:0
+          p: [],
+          t: 5,
+          r:0,g:0,b:0,a:1
         };
-
-        shapes.push(shape);
-        drawShape(canvas.getContext('2d'), shape.x,shape.y,shape.s,shape.a,shape.r,shape.g,shape.b);
+        return shape;
       }
+      function nextPoint(shape, point) {
+        var abspoint = untransform(point),
+            absprev = shape.p[shape.p.length-1],
+            ctx = canvas.getContext('2d');
+        if (absprev) {
+          var relprev = transform(absprev||[0,0]);
+          ctx.strokeStyle = "rgba("+shape.r+","+shape.g+","+shape.b+","+shape.a+")";
+          ctx.lineWidth = shape.t;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo.apply(ctx, relprev);
+          ctx.lineTo.apply(ctx, point);
+          ctx.stroke();
+        }
+        shape.p.push(
+          [Math.round(abspoint[0]*10)/10, Math.round(abspoint[1]*10)/10]
+        );
+      }
+
+
+      //////// INIT
+      function resizeCanvas() {
+        // Fix the canvas when resized
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        redraw();
+      }
+      var resizeTimer = null;
+      function deferredResize() {
+        // Resize later
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(resizeCanvas, 100);
+      }
+
+      window.onresize = deferredResize;
+      window.onscroll = redraw;
 
       canvas = $("<canvas>").css({
           position: "fixed",
@@ -108,40 +133,29 @@ function activateGoggles() {
           left: "0"
         }).appendTo(document.body)[0];
 
-      var drawing = false;
+      var curshape = null;
       canvas.onmousedown = function(ev) {
-        newShape(pointsFromEv(ev));
-        drawing = true;
+        curshape = newShape(pointsFromEv(ev));
       };
       canvas.onmouseup = function(ev) {
-        drawing = false;
+        shapes.push(curshape);
+        curshape = null;
       };
       canvas.onmousemove = function(ev) {
-        if (drawing) {
-          newShape(pointsFromEv(ev));
+        if (curshape) {
+          nextPoint(curshape, pointsFromEv(ev));
         }
       };
-      function resizeCanvas() {
-        // window has this:
-        // window.innerWidth, window.innerHeight,
-        // window.outerWidth, window.outerHeight (includes scrollbars, etc)
-        // window.scrollX, window.scrollY
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        redraw();
-      }
+
+
       resizeCanvas();
 
-      var resizeTimer = null;
-      function deferredResize() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(resizeCanvas, 100);
-      }
+      setInterval(function(){
+          console.log(shapes.length);
+          console.log("serialized size: "+JSON.stringify(shapes).length);
+        }, 5000);
 
-
-
-      window.onresize = deferredResize;
-      window.onscroll = redraw;
+      window.shapes = shapes;
 
   })(jQuery);
 }
