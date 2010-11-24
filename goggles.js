@@ -61,6 +61,15 @@ function activateGoggles() {
           ctx.stroke();
 //       }
       };
+      Shape.prototype.boundingBox = function() {
+        // return the bounding box
+        return {
+          left: Math.min.apply(null, this.p.map(function(point){return point[0];})),
+          right: Math.max.apply(null, this.p.map(function(point){return point[0];})),
+          top: Math.min.apply(null, this.p.map(function(point){return point[1];})),
+          bottom: Math.max.apply(null, this.p.map(function(point){return point[1];}))
+        };
+      };
 
       // GOGGLES
       function Goggles() {
@@ -149,9 +158,15 @@ function activateGoggles() {
         var ctx = this.ctx;
         // clear
         this.resetCanvasXform();
-
         for (var i=0,l=this.shapes.length; i<l; i++) {
-          this.shapes[i].draw(ctx);
+          var bb = this.shapes[i].boundingBox();
+          // clip invisible shapes
+          if (bb.right - window.scrollX + this.centerCoord > 0 &&
+              bb.left - window.scrollX + this.centerCoord < this.canvas.width &&
+              bb.bottom - window.scrollY > 0 &&
+              bb.top - window.scrollY < this.canvas.height) {
+            this.shapes[i].draw(ctx);
+          }
         }
 
       };
