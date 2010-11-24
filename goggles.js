@@ -1,7 +1,6 @@
 function activateGoggles() {
   (function($){
-      if (window.goggled) { return; }
-      window.goggled = true;
+      if (window.goggles) { window.goggles.stop(function(){window.goggles = null;}); }
 
       function bind(bindee, action) {
         return function() {
@@ -106,7 +105,16 @@ function activateGoggles() {
         window.onscroll = bind(this, this.redraw);
         this.resizeCanvas();
       }
-
+      Goggles.prototype.stop = function(cb) {
+        // Destroy a goggles object with optional callback
+        window.onresize = null;
+        window.onscroll = null;
+        clearTimeout(this.resizeTimer);
+        $(this.canvas).fadeOut('medium', function(){
+            $(this.canvas).remove();
+            cb();
+          });
+      };
       // Point transformation functions
       // Establish a new coordinate system. (0, 0) is at the top MIDDLE of
       // the page, +x is right and -x is left.
@@ -131,7 +139,6 @@ function activateGoggles() {
       };
 
       // Drawing functions
-
       Goggles.prototype.redraw = function() {
         // Redraw entire canvas
         var ctx = this.ctx;
@@ -152,7 +159,6 @@ function activateGoggles() {
           return [ev.offsetX, ev.offsetY];
         }
       };
-
 
 
       //////// INIT
