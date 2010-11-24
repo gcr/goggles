@@ -30,40 +30,61 @@ function activateGoggles() {
       //}
       //console.log(shapes[100]);
 
+      function transform(x, y) {
+        // given an absolute point, return the point's position on the screen
+        return {
+          x: x-window.scrollX + (canvas.width/2),
+          y: y-window.scrollY
+        };
+      }
+
+      function untransform(x, y) {
+        // given an point wrt the screen, return the point's absolute position
+        return {
+          x: x+window.scrollX - (canvas.width/2),
+          y: y+window.scrollY
+        };
+      }
+
+      function drawShape(ctx, x,y,s,a,r,g,b) {
+        // x, y, size (radius), alpha, red, green, blue
+        var p = transform(x, y);
+        if ((p.x + s) > 0 &&
+            (p.y + s) > 0 &&
+            (p.x - s) < canvas.width &&
+            (p.y - s) < canvas.height) {
+          ctx.fillStyle = "rgba("+r+","+g+","+b+","+a+")";
+          ctx.beginPath();
+          ctx.arc( p.x, p.y, s, 0, 2*Math.PI, true);
+          ctx.fill();
+        }
+      }
+
       function redraw() {
         var ctx = canvas.getContext('2d');
         // clear
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        ctx.save();
-          // establish a new coordinate system. (0, 0) is at the top MIDDLE of
-          // the page, +x is right and -x is left.
-          // this accomodates pages that have fixed-width or centered layouts.
-          ctx.translate(canvas.width/2, 0);
+        // establish a new coordinate system. (0, 0) is at the top MIDDLE of
+        // the page, +x is right and -x is left.
+        // this accomodates pages that have fixed-width or centered layouts.
 
-          // todo: actually I would really like this to be relative to either
-          // the left of the content or the middle of the page.
+        // todo: actually I would really like this to be relative to either
+        // the left of the content or the middle of the page.
 
-          // account for scrolling
-          ctx.translate(-window.scrollX, -window.scrollY);
+        for (var i=0,l=shapes.length; i<l; i++) {
+          var shape = shapes[i];
+          drawShape(ctx, shape.x, shape.y, shape.s, shape.a, shape.r, shape.g, shape.b);
+        }
 
-          var counter=0;
-          for (var i=0,l=shapes.length; i<l; i++) {
-            var shape = shapes[i];
-            if ((shape.x + shape.s)+(canvas.width/2) > window.scrollX &&
-                (shape.y + shape.s) > window.scrollY &&
-                (shape.x - shape.s)+(canvas.width/2) < window.scrollX+window.innerWidth &&
-                (shape.y - shape.s) < window.scrollY+window.innerWidth) {
-                counter++;
-              ctx.fillStyle = "rgba("+shape.r+","+shape.g+","+shape.b+","+shape.a+")";
-              ctx.beginPath();
-              ctx.arc( shape.x, shape.y, shape.s, 0, 2*Math.PI, true);
-              ctx.fill();
-            }
-          }
-          console.log("drew "+counter+" shapes");
-        ctx.restore();
+      }
 
+      function pointsFromEv(ev) {
+        if ('clientX' in ev) { // Firefox
+          return {x: ev.clientX, y: ev.clientY};
+        } else if ('offsetX' in ev) { // Opera
+          return {x: ev.offsetX, y: ev.offsetY};
+        }
       }
 
       canvas = $("<canvas>").css({
@@ -72,7 +93,28 @@ function activateGoggles() {
           top: "0",
           left: "0"
         }).appendTo(document.body)[0];
+      canvas.onmousedown = function(ev) {
+        var point = pointsFromEv(ev),
+        // TODO: breaks because chrome interprets it as an absolute document
+        // position while fx interprets it wrt. screen position
+            p = untransform(point.x, point.y),
+            shape = {
+              x: p.x,
+              y: p.y,
+              s: 10,
+              a: 1,
+              r:0,g:0,b:0
+            };
 
+        shapes.push(shape);
+        drawShape(canvas.getContext('2d'), shape.x,shape.y,shape.s,shape.a,shape.r,shape.g,shape.b);
+      };
+      canvas.onmouseup = function(ev) {
+
+      };
+      canvas.onmousemove = function(ev) {
+
+      };
       function resizeCanvas() {
         // window has this:
         // window.innerWidth, window.innerHeight,
@@ -80,7 +122,6 @@ function activateGoggles() {
         // window.scrollX, window.scrollY
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        console.log(canvas.width, canvas.height);
         redraw();
       }
       resizeCanvas();
