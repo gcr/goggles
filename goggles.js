@@ -79,6 +79,11 @@ function activateGoggles() {
         // the list of shapes to draw.
         this.curshape = null;
 
+        // Center coordinate
+        // Guess at where the text probably is
+        this.centerCoord = 0;
+        this.recalculateCenter();
+
         // Events
         this.canvas.onmousedown = bind(this, function(ev) {
           this.curshape = new Shape(5, 0,0,0,1);
@@ -125,7 +130,7 @@ function activateGoggles() {
         // Given an absolute point in our new coordinate system, return the
         // point's position on the screen
         return [
-          p[0]-window.scrollX + (this.canvas.width/2),
+          p[0]-window.scrollX + this.centerCoord,
           p[1]-window.scrollY
         ];
       };
@@ -133,7 +138,7 @@ function activateGoggles() {
         // Given an point wrt the screen, return the point's absolute position
         // wrt our coordinate system
         return [
-          p[0]+window.scrollX - (this.canvas.width/2),
+          p[0]+window.scrollX - this.centerCoord,
           p[1]+window.scrollY
         ];
       };
@@ -168,14 +173,41 @@ function activateGoggles() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.setTransform(1,0,
                               0,1,
-          this.canvas.width/2-window.scrollX,
+          this.centerCoord-window.scrollX,
           -window.scrollY);
       };
       Goggles.prototype.resizeCanvas = function() {
         // Fix the canvas when resized
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
+        this.recalculateCenter();
         this.redraw();
+      };
+
+      Goggles.prototype.recalculateCenter = function() {
+        // this calculates what X-coordinate will be the 'focus' of our web
+        // page.
+        //
+        // essentially, we want our x=0 coordinate to be the left edge of the
+        // content. this works reasonably well in practice except for
+        // dynamically generated things and line wrapping.
+
+        this.centerCoord = (
+          ($("#header").offset() || {left:0}).left ||
+          ($(".header").offset() || {left:0}).left ||
+          ($(".inner").offset()  || {left:0}).left ||
+          ($(".content").offset()|| {left:0}).left ||
+
+          // hackernews
+          ($("body>center>table").offset()||{left: 0}).left ||
+          // table-based layouts
+          ($("body>table").offset()||{left: 0}).left ||
+
+          // gogole results pages
+          ($("#center_col").offset()||{left:0}).left ||
+          
+          (this.canvas.width/2)
+        );
       };
 
 
