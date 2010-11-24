@@ -1,6 +1,6 @@
 function activateGoggles() {
   (function($){
-      if (window.goggles) { window.goggles.stop(function(){window.goggles = null;}); }
+      if (window.goggles) { return window.goggles.stop(function(){window.goggles = null;}); }
 
       function bind(bindee, action) {
         return function() {
@@ -107,10 +107,10 @@ function activateGoggles() {
       }
       Goggles.prototype.stop = function(cb) {
         // Destroy a goggles object with optional callback
-        window.onresize = null;
-        window.onscroll = null;
-        clearTimeout(this.resizeTimer);
-        $(this.canvas).fadeOut('medium', function(){
+        $(this.canvas).fadeOut('fast', function() {
+            window.onresize = null;
+            window.onscroll = null;
+            clearTimeout(this.resizeTimer);
             $(this.canvas).remove();
             cb();
           });
