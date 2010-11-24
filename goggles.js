@@ -9,7 +9,64 @@ function activateGoggles() {
         };
       }
 
+      // SHAPES
+      function Shape(t, r,g,b,a) {
+        // Each shape looks like this:
+        // {p: [ [x,y], [x,y], [x,y], ...], points
+        //  t: 5                            thickness
+        //  r: 250, g: 200, b: 125, a: 0.5  color
+        // }
+        // give it a position, thickness, and rgba colors
+        this.t = t;
+        this.r=r;
+        this.g=g;
+        this.b=b;
+        this.a=a;
+        this.p = [];
+      }
+      Shape.prototype.appendPoint = function(point) {
+        // Append a point to this shape.
+        this.p.push(
+          [Math.round(point[0]*10)/10, Math.round(point[1]*10)/10]
+        );
+      };
+      Shape.prototype.drawLast = function(ctx) {
+        // Given a canvas, draw the last line of the shape
+        if (this.p.length >= 2) {
+          var a = this.p[this.p.length-2],
+              b = this.p[this.p.length-1];
+          // draws part of the shape
+          ctx.strokeStyle = "rgba("+this.r+","+this.g+","+this.b+","+this.a+")";
+          ctx.lineWidth = this.t;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo.apply(ctx, a);
+          ctx.lineTo.apply(ctx, b);
+          ctx.stroke();
+        }
+      };
+      Shape.prototype.draw = function(ctx) {
+        // Draw a given shape if it is in view.
+//      if ((p.x + shape.s) > 0 &&
+//          (p.y + shape.s) > 0 &&
+//          (p.x - shape.s) < canvas.width &&
+//          (p.y - shape.s) < canvas.height) {
+          ctx.strokeStyle = "rgba("+this.r+","+this.g+","+this.b+","+this.a+")";
+          ctx.lineWidth = this.t;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo.apply(ctx, this.p[0]);
+          for (var i=0,l=this.p.length; i<l; i++) {
+            ctx.lineTo.apply(ctx, this.p[i]);
+          }
+          ctx.stroke();
+//       }
+      };
+
+      // GOGGLES
       function Goggles() {
+        // Here is our goggles object.
+        
         this.canvas = $("<canvas>").css({
           position: "fixed",
           "z-index": "100000",
@@ -19,16 +76,13 @@ function activateGoggles() {
 
         this.ctx = this.canvas.getContext('2d');
 
-        this.shapes = []; // the list of shapes to draw. each shape is just a point
-        // or circle; as part of a line.
-        // each shape looks like this:
-        // {p: [ [x,y], [x,y], [x,y], ...], pixels
-        //  t: 5                            thickness
-        //  r: 250, g: 200, b: 125, a: 0.5  color
-        // }
+        this.shapes = [];
+        // the list of shapes to draw.
         this.curshape = null;
+
+        // Events
         this.canvas.onmousedown = bind(this, function(ev) {
-          this.curshape = this.newShape(this.pointsFromEv(ev));
+          this.curshape = new Shape(5, 0,0,0,1);
         });
         this.canvas.onmouseup = bind(this, function(ev) {
           this.shapes.push(this.curshape);
@@ -36,10 +90,13 @@ function activateGoggles() {
         });
         this.canvas.onmousemove = bind(this, function(ev) {
           if (this.curshape) {
-            this.nextPoint(this.curshape, this.pointsFromEv(ev));
+            this.curshape.appendPoint(
+              this.untransform(this.pointsFromEv(ev)));
+            this.curshape.drawLast(this.ctx);
           }
         });
 
+        // Window resize and scroll handlers
         this.resizeTimer = null;
         window.onresize = bind(this, function() {
           // Resize later
@@ -57,7 +114,8 @@ function activateGoggles() {
       // todo: actually I would really like this to be relative to either
       // the left of the content or the middle of the page.
       Goggles.prototype.transform = function(p) {
-        // Given an absolute point, return the point's position on the screen
+        // Given an absolute point in our new coordinate system, return the
+        // point's position on the screen
         return [
           p[0]-window.scrollX + (this.canvas.width/2),
           p[1]-window.scrollY
@@ -65,6 +123,7 @@ function activateGoggles() {
       };
       Goggles.prototype.untransform = function(p) {
         // Given an point wrt the screen, return the point's absolute position
+        // wrt our coordinate system
         return [
           p[0]+window.scrollX - (this.canvas.width/2),
           p[1]+window.scrollY
@@ -72,33 +131,15 @@ function activateGoggles() {
       };
 
       // Drawing functions
-      Goggles.prototype.drawShape = function(ctx, shape) {
-        // Draw a given shape if it is in view.
-//      if ((p.x + shape.s) > 0 &&
-//          (p.y + shape.s) > 0 &&
-//          (p.x - shape.s) < canvas.width &&
-//          (p.y - shape.s) < canvas.height) {
-          ctx.strokeStyle = "rgba("+shape.r+","+shape.g+","+shape.b+","+shape.a+")";
-          ctx.lineWidth = shape.t;
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          ctx.moveTo.apply(ctx, this.transform(shape.p[0]));
-          for (var i=0,l=shape.p.length; i<l; i++) {
-            ctx.lineTo.apply(ctx, this.transform(shape.p[i]));
-          }
-          ctx.stroke();
-//       }
-      };
 
       Goggles.prototype.redraw = function() {
         // Redraw entire canvas
         var ctx = this.ctx;
         // clear
-        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.resetCanvasXform();
 
         for (var i=0,l=this.shapes.length; i<l; i++) {
-          var shape = this.shapes[i];
-          this.drawShape(ctx, shape);
+          this.shapes[i].draw(ctx);
         }
 
       };
@@ -112,39 +153,18 @@ function activateGoggles() {
         }
       };
 
-      Goggles.prototype.newShape = function(point) {
-        // Create and return a new shape.
-        var p = {x: this.untransform(point)[0],
-                 y: this.untransform(point)[1]},
-        shape = {
-          p: [],
-          t: 5,
-          r:0,g:0,b:0,a:1
-        };
-        return shape;
-      };
-      Goggles.prototype.nextPoint = function(shape, point) {
-        var abspoint = this.untransform(point),
-            absprev = shape.p[shape.p.length-1],
-            ctx = this.canvas.getContext('2d');
-        if (absprev) {
-          var relprev = this.transform(absprev||[0,0]);
-          // draws part of the shape
-          ctx.strokeStyle = "rgba("+shape.r+","+shape.g+","+shape.b+","+shape.a+")";
-          ctx.lineWidth = shape.t;
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          ctx.moveTo.apply(ctx, relprev);
-          ctx.lineTo.apply(ctx, point);
-          ctx.stroke();
-        }
-        shape.p.push(
-          [Math.round(abspoint[0]*10)/10, Math.round(abspoint[1]*10)/10]
-        );
-      };
 
 
       //////// INIT
+      Goggles.prototype.resetCanvasXform = function() {
+        this.ctx.setTransform(1,0,
+                              0,1,  0, 0);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.setTransform(1,0,
+                              0,1,
+          this.canvas.width/2-window.scrollX,
+          -window.scrollY);
+      };
       Goggles.prototype.resizeCanvas = function() {
         // Fix the canvas when resized
         this.canvas.width = window.innerWidth;
