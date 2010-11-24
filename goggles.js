@@ -84,7 +84,7 @@ function activateGoggles() {
       // GOGGLES
       function Goggles() {
         // Here is our goggles object.
-        
+
         this.canvas = $("<canvas>").css({
           position: "fixed",
           "z-index": "100000",
@@ -181,7 +181,7 @@ function activateGoggles() {
 
           // gogole results pages
           ($("#center_col").offset()||{left:0}).left ||
-          
+
           (this.canvas.width/2)
         );
       };
