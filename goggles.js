@@ -189,7 +189,8 @@ function activateGoggles() {
         this.canvas.onmouseup = bind(this, function(ev) {
           if (this.curshape) {
             if (this.curshape.p.length) {
-              this.shapes.push(this.curshape);
+              // todo: the server will send us the shape on its update
+              //this.shapes.push(this.curshape);
               this.sendShape(this.curshape);
             }
             this.curshape = null;
