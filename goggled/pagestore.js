@@ -38,12 +38,12 @@ Pagestore.prototype.getPageInfo = function(key, cb) {
   this.ks.get(key, function(info) {
       if (info) {
         cb({shapes: info.shapes,
-            lastUpdate: self.getHistory(key).time()
+            nextUpdate: self.getHistory(key).time()
           });
       } else {
         cb({first: true,
             shapes: [],
-            lastUpdate: 0
+            nextUpdate: self.getHistory(key).time()
           });
       }
     });
@@ -55,7 +55,6 @@ Pagestore.prototype.addShapeToPage = function(key, shape, cb) {
   // now that we have everything we need, get the information and assemble 
   this.getPageInfo(key, function(pageInfo) {
       pageInfo.shapes.push(shape);
-      pageInfo.lastUpdate++;
       self.ks.set(key, {shapes: pageInfo.shapes}, // only save what we need
         function(err){
           if(err){
