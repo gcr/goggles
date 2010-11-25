@@ -6,7 +6,7 @@
 // resources would be mighty inconvenient, so we'll just do like this:
 // http://server/?lookup=http%3a%2f%2fgoogle.com%2f
 //
-// Only two ops: add and page lookup.
+// This page handles (should handle!) all of the view functions.
 
 var http = require('http'),
     url = require('url'),
@@ -23,23 +23,18 @@ function failWith(req, res, message) {
 function renderJson(req, res, obj) {
   var json;
   var query = url.parse(req.url, true).query || {};
-  if (typeof obj == 'undefined') {
-    json = JSON.stringify(null);
-  } else {
-    json = JSON.stringify(obj);
-  }
+  json = JSON.stringify(typeof obj=='undefined'? null : obj);
   if ('jsonp' in query || 'callback' in query) {
-      json = (query.jsonp || query.callback) + "(" + json + ")\n";
-  } else {
-    json = json + "\n";
+      json = (query.jsonp || query.callback) + "(" + json + ")";
   }
+  json = json + "\n";
   res.writeHead(200, {"Content-Type": "text/plain; charset=utf-8",
                                         // todo: change to text/json
-                        'Cache-Control': 'no-cache, must-revalidate',
-                        'Expires': 'Mon, 20 Dec 1998 01:00:00 GMT',
-                        'Last-Modified': new Date().toUTCString(),
-                        'Pragma': 'no-cache',
-                        "Content-Length": json.length});
+                      'Cache-Control': 'no-cache, must-revalidate',
+                      'Expires': 'Mon, 20 Dec 1998 01:00:00 GMT',
+                      'Last-Modified': new Date().toUTCString(),
+                      'Pragma': 'no-cache',
+                      "Content-Length": json.length});
   res.end(json);
 }
 
