@@ -17,9 +17,13 @@ function activateGoggles() {
         }
       }
 
+      function getUrl() {
+        // return a unique URL for this page
+        return document.location.protocol+"//"+document.location.host+"/"+document.location.pathname;
+      }
 
       // SHAPES
-      function Shape(thickness, r,g,b,a) {
+      function Shape(thickness, r,g,b,a, points) {
         // Takes a position, thickness, and rgba colors
         // Each shape looks like this:
         // {p: [ [x,y], [x,y], [x,y], ...], points
@@ -27,11 +31,11 @@ function activateGoggles() {
         //  r: 250, g: 200, b: 125, a: 0.5  color
         // }
         this.t = thickness;
-        this.r=r;
-        this.g=g;
-        this.b=b;
-        this.a=a;
-        this.p = [];
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        this.a = a;
+        this.p = points||[];
       }
       Shape.prototype.appendPoint = function(point) {
         // Append a point to this shape.
@@ -82,7 +86,7 @@ function activateGoggles() {
       };
 
       // GOGGLES
-      function Goggles() {
+      function Goggles(ajaxroot) {
         // Here is our goggles object.
 
         this.canvas = $("<canvas>").css({
@@ -92,9 +96,12 @@ function activateGoggles() {
           left: "0"
         }).appendTo(document.body)[0];
 
+        this.url = getUrl();
+        this.serverUrl = ajaxroot+"?callback=?";
+
         this.ctx = this.canvas.getContext('2d');
 
-        this.shapes = [];
+        this.shapes = null;
         // the list of shapes to draw.
 
         // Center coordinate
@@ -104,11 +111,16 @@ function activateGoggles() {
         // Events
         this.curshape = null;
         this.canvas.onmousedown = bind(this, function(ev) {
-          this.curshape = new Shape(5, 0,0,0,1);
+          if (this.shapes !== null) {
+            this.curshape = new Shape(5, 0,0,0,1);
+          }
         });
         this.canvas.onmouseup = bind(this, function(ev) {
-          this.shapes.push(this.curshape);
-          this.curshape = null;
+          if (this.curshape) {
+            this.shapes.push(this.curshape);
+            this.sendShape(this.curshape);
+            this.curshape = null;
+          }
         });
         this.canvas.onmousemove = bind(this, function(ev) {
           if (this.curshape) {
@@ -127,6 +139,7 @@ function activateGoggles() {
         });
         window.onscroll = bind(this, this.redraw);
         this.resizeCanvas();
+        this.update();
       }
       Goggles.prototype.stop = function(cb) {
         // Destroy a goggles object with optional callback
@@ -189,20 +202,21 @@ function activateGoggles() {
       // Drawing functions
       Goggles.prototype.redraw = function() {
         // Redraw entire canvas
-        var ctx = this.ctx;
-        // clear
-        this.resetCanvasXform();
-        for (var i=0,l=this.shapes.length; i<l; i++) {
-          var bb = this.shapes[i].boundingBox();
-          // clip invisible shapes
-          if (bb.right - window.scrollX + this.centerCoord > 0 &&
-              bb.left - window.scrollX + this.centerCoord < this.canvas.width &&
-              bb.bottom - window.scrollY > 0 &&
-              bb.top - window.scrollY < this.canvas.height) {
-            this.shapes[i].draw(ctx);
+        if (this.shapes !== null) {
+          var ctx = this.ctx;
+          // clear
+          this.resetCanvasXform();
+          for (var i=0,l=this.shapes.length; i<l; i++) {
+            var bb = this.shapes[i].boundingBox();
+            // clip invisible shapes
+            if (bb.right - window.scrollX + this.centerCoord > 0 &&
+                bb.left - window.scrollX + this.centerCoord < this.canvas.width &&
+                bb.bottom - window.scrollY > 0 &&
+                bb.top - window.scrollY < this.canvas.height) {
+              this.shapes[i].draw(ctx);
+            }
           }
         }
-
       };
       Goggles.prototype.resetCanvasXform = function() {
         this.ctx.setTransform(1,0,
@@ -221,7 +235,49 @@ function activateGoggles() {
         this.redraw();
       };
 
-      window.goggles = new Goggles();
+      // AJAX functions
+      function unserializeShapeArray(shapes) {
+        return shapes.map(function(s){
+            return new Shape(s.t, s.r,s.g,s.b,s.a, s.p);
+          });
+      }
+      function serializePoints(points){
+        // return the points in a suitable format for the server
+        return points.map(function(point){
+            return point[0]+","+point[1];
+          }).join(';');
+      }
+      Goggles.prototype.update = function(cb) {
+        // update informations from the server
+        var self = this;
+        $.getJSON(this.serverUrl, {
+            page: this.url
+          }, function(json) {
+            if (json.err) {
+              alert(json.err);
+            } else {
+              console.log(json);
+              self.shapes = unserializeShapeArray(json.shapes);
+              self.redraw();
+            }
+          });
+      };
+      Goggles.prototype.sendShape = function(shape) {
+        var self = this;
+        $.getJSON(this.serverUrl, {
+            page: this.url, add: 't',
+            r: shape.r, g:shape.g, b:shape.b, a:shape.a,t:shape.t,
+            p:serializePoints(shape.p)},
+          function(data){
+            if (!data) {
+              alert("There was a problem sending the shapes to the server.");
+            }
+          });
+      };
+
+
+
+      window.goggles = new Goggles(window.GOGGLE_SERVER);
 
   })(jQuery);
 }

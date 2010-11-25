@@ -34,7 +34,8 @@ function Keystore(directory) {
   // initialize subdirs
   for (var i=0; i<256; i++) {
     try {
-      fs.mkdirSync(path.join(this.dir, i.toString(16).toLowerCase()), 0700);
+      var hexdigit = i.toString(16).toLowerCase();
+      fs.mkdirSync(path.join(this.dir, "00".substr(hexdigit.length)+hexdigit), 0700);
     } catch (e) {}
   }
 }
@@ -78,8 +79,3 @@ Keystore.prototype.get = function(key, cb) {
 };
 
 exports.Keystore = Keystore;
-
-var k = new Keystore('store');
-for (var i=0; i<10000; i++) {
-  k.get(""+i, console.log);
-}
