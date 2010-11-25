@@ -56,8 +56,18 @@ function receive(req, res) {
       // dispatch based on what we want to do
       if (q.page && q.page.length > 2) {
         if (q.add) {
-          return ps.addShapeToPage(q.page, q.p, q.t, q.r, q.g, q.b, q.a, render);
+          // Add a page
+          var shape = ps.verifyShape(q.p, q.t, q.r, q.g, q.b, q.a);
+          if (shape) {
+            return ps.addShapeToPage(q.page, shape, render);
+          } else {
+            failWith(req, res, "One or more of your shape paramaters is invalid.");
+          }
+        } else if (q.stream) {
+          // Stream shape updates =3
+          return ps.streamPageUpdates(q.page, parseInt(q.stream, 10), render);
         } else {
+          // Just lookup the page
           return ps.getPageInfo(q.page, render);
         }
       }
