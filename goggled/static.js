@@ -200,5 +200,12 @@ function makeFileServer(webroot) {
   };
 }
 
+function makeSingleFileServer(path) {
+  return function(req, res) {
+    return serveFile(path, false, req, res);
+  };
+}
+
 exports.serveFile = serveFile;
 exports.makeFileServer = makeFileServer;
+exports.makeSingleFileServer = makeSingleFileServer;

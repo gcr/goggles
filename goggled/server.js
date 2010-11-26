@@ -22,14 +22,16 @@ var http = require('http'),
 function receive(req, res) {
   // this actually sends the response back
   function render(data) { return view.renderJson(req, res, data); }
-  var u = url.parse(req.url, true),
-      q = u.query||{};
   try {
-    return switchboard.dispatch(req, res, u.pathname, {
+    return switchboard.dispatch(req, res, url.parse(req.url).pathname, {
         '': function(req, res) { view.renderJson(req, res, "hello"); },
+
         'favicon.ico': function(){
           res.writeHead(404); res.end("No favicon here");
         },
+
+        'bookmarklet.js': staticfiles.makeSingleFileServer('../goggles.js'),
+
         'page': switchboard.makeDispatchQueryOverloader(
             ['add', 'page','t','r','g','b','a','p'],
             function(req,res, add,page,t,r,g,b,a,p){

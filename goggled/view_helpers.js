@@ -13,7 +13,7 @@ function renderJson(req, res, obj) {
       json = (query.jsonp || query.callback) + "(" + json + ")";
   }
   json = json + "\n";
-  res.writeHead(200, {"Content-Type": "text/plain; charset=utf-8",
+  res.writeHead(200, {"Content-Type": "text/javascript; charset=utf-8",
                                         // todo: change to text/json
                       'Cache-Control': 'no-cache, must-revalidate',
                       'Expires': 'Mon, 20 Dec 1998 01:00:00 GMT',

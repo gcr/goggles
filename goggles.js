@@ -212,7 +212,7 @@ jQuery.noConflict();
     }).appendTo(document.body)[0];
 
     this.url = getUrl();
-    this.serverUrl = ajaxroot+"?callback=?";
+    this.serverUrl = ajaxroot;//+"?callback=?";
 
     this.ctx = this.canvas.getContext('2d');
 
@@ -434,6 +434,7 @@ jQuery.noConflict();
     // just like jQuery.getJSON but unlike jquery, this handles timeouts in a sane way.
     return $.ajax({
       url: url,
+      //dataType: 'json',
       dataType: 'jsonp',
       jsonp: 'jsonp',
       data: data,
@@ -532,7 +533,7 @@ jQuery.noConflict();
   };
   Goggles.prototype.sendShape = function(shape) {
     var self = this;
-    $.getJSON(this.serverUrl, {
+    ajaxRequest(this.serverUrl, {
         page: this.url, add: 't',
         r: shape.r, g:shape.g, b:shape.b, a:shape.a,t:shape.t,
         p:serializePoints(shape.p)},
@@ -545,7 +546,7 @@ jQuery.noConflict();
   };
   Goggles.prototype.sendDeleteShape = function(shape) {
     var self = this;
-    $.getJSON(this.serverUrl, {
+    ajaxRequest(this.serverUrl, {
         page: this.url, del: 't',
         r: shape.r, g:shape.g, b:shape.b, a:shape.a,t:shape.t,
         p:serializePoints(shape.p)},
