@@ -534,23 +534,19 @@ jQuery.noConflict();
       function(data){
         if (data && data.err) {
           alert("There was a problem sending the shapes to the server.");
-          console.log(data);
           self.stop(function(){});
         }
       });
   };
   Goggles.prototype.sendDeleteShape = function(shape) {
-    console.log("Deleting", shape);
     var self = this;
     $.getJSON(this.serverUrl, {
         page: this.url, del: 't',
         r: shape.r, g:shape.g, b:shape.b, a:shape.a,t:shape.t,
         p:serializePoints(shape.p)},
       function(data){
-        console.log(data);
         if (data && data.err) {
           alert("There was a problem deleting the shape.");
-          console.log(data);
           self.stop(function(){});
         }
       });
