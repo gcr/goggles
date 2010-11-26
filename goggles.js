@@ -69,7 +69,7 @@ jQuery.noConflict();
       return {r:0,g:0,b:0};
     }
   }
-  function Picker(onPickColor) {
+  function Picker(onPickColor, onExit) {
     var self = this;
     this.jq = $("<div>").css({
       position: "fixed",
@@ -99,6 +99,8 @@ jQuery.noConflict();
         return colorjq;
       });
     colors[0].click();
+
+    var exitButton=$("<div>").text("exit").click(onExit).appendTo(this.jq);
   }
   Picker.prototype.del = function() {
     this.jq.fadeOut('fast', bind(this,function(){this.jq.remove();}));
@@ -230,7 +232,7 @@ jQuery.noConflict();
     this.curColor = {r:0,g:0,b:0};
     this.picker = new Picker(bind(this,function(color){
         this.curColor = color;
-      }));
+      }), bind(this,function(){this.stop(function(){});}));
 
     // Events
     this.canvas.oncontextmenu = function(){ return false; };
@@ -484,6 +486,9 @@ jQuery.noConflict();
   };
   StreamingHistory.prototype.stop = function() {
     // Stop current request and stop streaming from the server.
+    // TODO: this doesn't actually work because JSONP requests are nothing more
+    // than adding <script> tags at the end of the document which are loaded and
+    // executed serially. :<
     if (this.xhr !== undefined) {
       this.xhr.abort();
     }
