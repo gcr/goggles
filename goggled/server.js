@@ -24,7 +24,10 @@ function receive(req, res) {
   function render(data) { return view.renderJson(req, res, data); }
   try {
     return switchboard.dispatch(req, res, url.parse(req.url).pathname, {
-        '': function(req, res) { view.renderJson(req, res, "hello"); },
+        '': staticfiles.makeSingleFileServer('resources/index.htm'),
+
+        'img': staticfiles.makeFileServer('resources'),
+        'css': staticfiles.makeFileServer('resources'),
 
         'favicon.ico': function(){
           res.writeHead(404); res.end("No favicon here");
