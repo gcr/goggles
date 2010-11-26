@@ -78,5 +78,5 @@ function receive(req, res) {
   }
 }
 
-http.createServer(receive).listen(PORT, "127.0.0.1");
+http.createServer(receive).listen(PORT, "0.0.0.0");
 console.log('Server running at http://127.0.0.1:'+PORT+'/');
