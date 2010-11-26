@@ -12,80 +12,65 @@ var http = require('http'),
     url = require('url'),
     Pagestore = require('./pagestore').Pagestore,
     ps = new Pagestore("store"),
+    staticfiles = require('./static'),
+    view = require('./view_helpers'),
+    switchboard = require('./switchboard'),
 
     PORT = 8002;
 
-function failWith(req, res, message) {
-    res.writeHead(500, {'Content-Type': 'text/plain'});
-    res.end(JSON.stringify({err: message})+'\n');
-}
-
-function renderJson(req, res, obj) {
-  var json;
-  var query = url.parse(req.url, true).query || {};
-  json = JSON.stringify(typeof obj=='undefined'? null : obj);
-  if ('jsonp' in query || 'callback' in query) {
-      json = (query.jsonp || query.callback) + "(" + json + ")";
-  }
-  json = json + "\n";
-  res.writeHead(200, {"Content-Type": "text/plain; charset=utf-8",
-                                        // todo: change to text/json
-                      'Cache-Control': 'no-cache, must-revalidate',
-                      'Expires': 'Mon, 20 Dec 1998 01:00:00 GMT',
-                      'Last-Modified': new Date().toUTCString(),
-                      'Pragma': 'no-cache',
-                      "Content-Length": json.length});
-  res.end(json);
-}
 
 function receive(req, res) {
+  // this actually sends the response back
+  function render(data) { return view.renderJson(req, res, data); }
+  var u = url.parse(req.url, true),
+      q = u.query||{};
   try {
-    var u = url.parse(req.url, true),
-        path = u.pathname.split('/'),
-        hash = path[1],
-        q = u.query||{};
-      if (path[1] == 'favicon.ico') {
-        res.writeHead(404); res.end("No favicon here");
-        return;
-      }
+    return switchboard.dispatch(req, res, u.pathname, {
+        '': function(req, res) { view.renderJson(req, res, "hello"); },
+        'favicon.ico': function(){
+          res.writeHead(404); res.end("No favicon here");
+        },
+        'page': switchboard.makeDispatchQueryOverloader(
+            ['add', 'page','t','r','g','b','a','p'],
+            function(req,res, add,page,t,r,g,b,a,p){
+              var shape = ps.verifyShape(p, t, r, g, b, a);
+              if (shape) {
+                return ps.addShapeToPage(page, shape, render);
+              } else {
+                view.failWith(req, res, "One or more of your shape paramaters is invalid.");
+              }
+            },
+            ['del', 'page','t','r','g','b','a','p'],
+            function(req,res, del,page,t,r,g,b,a,p){
+              // I know it's stupid to delete the shape by passing in every
+              // parameter...
+              var shape = ps.verifyShape(p, t, r, g, b, a);
+              if (shape) {
+                return ps.deleteShapeFromPage(page, shape, render);
+              } else {
+                view.failWith(req, res, "One or more of your shape paramaters is invalid.");
+              }
+            },
+            ['stream', 'page'],
+            function(req,res, stream,page){
+              // Stream shape updates =3
+              return ps.streamPageUpdates(page, parseInt(stream, 10), render);
+            },
+            ['page'],
+            function(req,res, page){
+              // Just lookup the page
+              return ps.getPageInfo(page, render);
+            },
+            [],
+            function(rq,rs){
+              view.failWith(req, res, "unknown action");
+            }
+          )
+        });
 
-      // this actually sends the response back
-      function render(data) { return renderJson(req, res, data); }
-
-
-      // dispatch based on what we want to do
-      if (q.page && q.page.length > 2) {
-        var shape = null;
-        if (q.add) {
-          // Add a page
-          shape = ps.verifyShape(q.p, q.t, q.r, q.g, q.b, q.a);
-          if (shape) {
-            return ps.addShapeToPage(q.page, shape, render);
-          } else {
-            failWith(req, res, "One or more of your shape paramaters is invalid.");
-          }
-        } else if (q.del) {
-          // I know it's stupid to delete the shape by passing in every
-          // parameter...
-          shape = ps.verifyShape(q.p, q.t, q.r, q.g, q.b, q.a);
-          if (shape) {
-            return ps.deleteShapeFromPage(q.page, shape, render);
-          } else {
-            failWith(req, res, "One or more of your shape paramaters is invalid.");
-          }
-        } else if (q.stream) {
-          // Stream shape updates =3
-          return ps.streamPageUpdates(q.page, parseInt(q.stream, 10), render);
-        } else {
-          // Just lookup the page
-          return ps.getPageInfo(q.page, render);
-        }
-      }
-
-      failWith(req, res, "unknown action");
   } catch(e) {
     console.log(e.stack);
-    return failWith(req, res, "Server error -- please try again");
+    return view.failWith(req, res, "Server error -- please try again");
   }
 }
 
