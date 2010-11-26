@@ -3,8 +3,110 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Goggles</title>
+
+    <script type="text/html" id="template">
+        javascript: (function () {
+            window.GOGGLE_SERVER='%%%%%/page';
+            var scr = document.createElement('script');
+            scr.type = 'text/javascript';
+            scr.src = '%%%%%/bookmarklet.js?rand='+Math.random();
+            document.documentElement.appendChild(scr);
+        })();
+    </script>
+
+    <script type="text/javascript">
+        window.onload = function(){
+            //alert(document.getElementById('template').innerHTML);
+            // if IE doesn't support canvas then we'll break it HERE! >:D
+            var c = document.createElement("canvas"),
+                ctx = c.getContext('2d'),
+                bookmarklet = document.getElementById('bmlink'),
+                server = document.location.protocol+"//"+document.location.host,
+                btext = document.getElementById('template').innerHTML
+                    .replace(/%%%%%/g, server)
+                    .split('\n')
+                    .map(function(s){return s.trim();})
+                    .join('');
+            bookmarklet.href = btext;
+            bookmarklet.innerHTML = "Goggles";
+            bookmarklet.className = 'awesome';
+            bookmarklet.onclick = function(){
+                alert("Please drag this link to your bookmark bar. Then you can click it.");
+                return false;
+            };
+        };
+    </script>
+
+    <style type="text/css" media="screen">
+        body {
+            font-family: Franklin Gothic Medium, Arial Narrow Bold, Arial, sans-serif;
+            font-size: 15pt;
+            color: #d0dfdc;
+            background-color: #90bfc6;
+        }
+        #center {
+            background-color: #d0dfdc;
+            color: #90bfc6;
+            width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 12px;
+            padding: 1em;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: bold;
+            font-size: 300%;
+            padding: 0.7em;
+        }
+
+        /* thanks to
+        http://www.zurb.com/article/266/super-awesome-buttons-with-css3-and-rgba */
+        a {
+            display: block;
+            text-align: center;
+            color: #0f657d;
+            margin-bottom: 1em;
+        }
+        .awesome{
+            background: #0f657d url(/img/button-overlay.png) repeat-x;
+            padding: 5px 10px 6px;
+            color: #d0dfdc;
+            font-size: 150%;
+            width: 200px;
+            margin: 0.5em auto 1em auto;
+            height: 48px;
+            text-decoration: none;
+            font-weight: bold;
+            line-height: 48px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
+            border-bottom: 1px solid rgba(0,0,0,0.25);
+            cursor: pointer;
+        }
+
+        .warning {
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+
 </head>
 <body>
-    HELLO GOGGLES
+    <div id="center">
+        <h1>Goggles.</h1>
+
+        <a id="bmlink" name="Goggles"
+            href="http://www.mozilla.com/en-US/firefox/firefox.html">You need
+            Firefox.</a>
+        Drag this bookmarklet to your bookmarks bar.<br />
+        You need Firefox or Chrome to use goggles.
+    </div>
 </body>
 </html>

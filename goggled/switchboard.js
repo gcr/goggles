@@ -6,8 +6,7 @@ var
 
 function notFound(req, res) {
   res.writeHeader(404, {"Content-Type": "text/plain; charset=utf-8"});
-  res.write("Not found\n");
-  res.close();
+  res.end("Not found\n");
   return false;
 }
 
