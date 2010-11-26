@@ -210,7 +210,11 @@ function activateGoggles() { (function($){ // <- hm, maybe not the best way of p
     });
     window.onscroll = bind(this, this.redraw);
     this.resizeCanvas();
-    //this.update();
+    
+    // And connect
+    this.connect(bind(this, function(){
+        this.picker.show();
+      }));
   }
   Goggles.prototype.stop = function(cb) {
     // Destroy a goggles object with optional callback
