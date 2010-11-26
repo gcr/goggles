@@ -13,7 +13,7 @@ var http = require('http'),
     Pagestore = require('./pagestore').Pagestore,
     ps = new Pagestore("store"),
 
-    PORT = 8002;
+    PORT = 8082;
 
 function failWith(req, res, message) {
     res.writeHead(500, {'Content-Type': 'text/plain'});
