@@ -451,7 +451,7 @@ jQuery.noConflict();
           if (e == 'timeout') {
             ajaxRequest(url, data, cb);
           } else {
-            alert("Network error: " + e);
+            //alert("Network error: " + e);
           }
         }
     });
