@@ -52,13 +52,24 @@ function receive(req, res) {
       // this actually sends the response back
       function render(data) { return renderJson(req, res, data); }
 
+
       // dispatch based on what we want to do
       if (q.page && q.page.length > 2) {
+        var shape = null;
         if (q.add) {
           // Add a page
-          var shape = ps.verifyShape(q.p, q.t, q.r, q.g, q.b, q.a);
+          shape = ps.verifyShape(q.p, q.t, q.r, q.g, q.b, q.a);
           if (shape) {
             return ps.addShapeToPage(q.page, shape, render);
+          } else {
+            failWith(req, res, "One or more of your shape paramaters is invalid.");
+          }
+        } else if (q.del) {
+          // I know it's stupid to delete the shape by passing in every
+          // parameter...
+          shape = ps.verifyShape(q.p, q.t, q.r, q.g, q.b, q.a);
+          if (shape) {
+            return ps.deleteShapeFromPage(q.page, shape, render);
           } else {
             failWith(req, res, "One or more of your shape paramaters is invalid.");
           }

@@ -48,6 +48,42 @@ Pagestore.prototype.getPageInfo = function(key, cb) {
       }
     });
 };
+Pagestore.prototype.deleteShapeFromPage = function(key, shape, cb) {
+  // Delete shape from the page.
+  var self = this;
+  this.getPageInfo(key, function(pageInfo) {
+      // find shape (pointwise comparison)
+      var foundShape = null,
+          pointsEqual = function(point, index) {
+              return point[0] == shape.p[index][0] && point[1] == shape.p[index][1];
+            };
+      for (var i=0,l=pageInfo.shapes.length; i<l; i++) {
+        // Look through all the shape and see if we found the one we want
+        var galleryshape = pageInfo.shapes[i];
+        if (galleryshape.p.length == shape.p.length && galleryshape.p.every(pointsEqual)) {
+          // remove it!
+          foundShape = shape;
+          break;
+        }
+      }
+      if (foundShape) {
+          pageInfo.shapes.splice(i, 1);
+            self.ks.set(key, {shapes: pageInfo.shapes},
+              function(err){
+                if(err){
+                  console.log(err.stack);
+                  cb({err: "The server had a problem deleting the shape."});
+                } else {
+                  cb(true);
+                  self.getHistory(key).add(
+                    {delete_shape: shape}
+                  );
+                }
+              });
+        }
+
+    });
+};
 Pagestore.prototype.addShapeToPage = function(key, shape, cb) {
   // Adds a shape to the page.
   // First, we need to verify things about it.
@@ -62,7 +98,6 @@ Pagestore.prototype.addShapeToPage = function(key, shape, cb) {
             cb({err: "The server had a problem saving the shape."});
           } else {
             cb(true);
-            console.log(require('util').inspect(self.histories));
             self.getHistory(key).add(
               {add_shape: shape}
             );
