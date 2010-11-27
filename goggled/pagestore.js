@@ -8,7 +8,9 @@
 //  - stream history updates from the page
 //
 var Keystore = require('./keystore').Keystore,
-    History = require('./history').History;
+    History = require('./history').History,
+
+    EMPTY_CB_TIMEOUT = 10*1000;
 
 function unserializepoints(points) {
   // This function turns a string with commas and semicolons into a new one.
@@ -27,7 +29,7 @@ function Pagestore(dir) {
 Pagestore.prototype.getHistory = function(k) {
   // Return the history object associated with key k
   if (!(k in this.histories)) {
-    this.histories[k] = new History();
+    this.histories[k] = new History(EMPTY_CB_TIMEOUT);
   }
   return this.histories[k];
 };

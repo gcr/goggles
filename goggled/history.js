@@ -1,8 +1,12 @@
 // History -- adds objects that can store things and you can retrieve stuff
 //            from them, blocking as needed until the objects are available.
 
-function History() {
-  this.futures = {}; // maps time => [callbacks to run at the given time]
+function History(emptyCbTimeout) {
+  this.emptyCbTimeout = emptyCbTimeout;
+  this.futures = {}; // maps time => [{timer: timeout timer,
+  //                                   cb: function(list_of_evesns){}}
+  //                                 ]
+  // if the callback times out, cb will be given an empty list.
   this.history = [];
 }
 
@@ -15,7 +19,8 @@ History.prototype.add = function(obj) {
   if (now in this.futures) {
     // If people are waiting for us, then give them stuff.
     this.futures[now].forEach(function(cb) {
-      cb([obj]);
+      clearTimeout(cb.timer);
+      cb.cb([obj]);
     });
     delete this.futures[now];
   }
@@ -32,10 +37,14 @@ History.prototype.after = function(time, cb) {
   } else {
     // UH OH we don't have anything yet. Best post it on our pegboard for
     // later then.
+    var cbData = {
+        cb: cb,
+        timer: setTimeout(function(){ cb([]); }, this.emptyCbTimeout)
+      };
     if (time in this.futures) {
-      this.futures[time].push(cb);
+      this.futures[time].push(cbData);
     } else {
-      this.futures[time] = [cb];
+      this.futures[time] = [cbData];
     }
   }
 };
