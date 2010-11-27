@@ -50,27 +50,32 @@ Pagestore.prototype.getPageInfo = function(key, cb) {
       }
     });
 };
+Pagestore.prototype.findShapeEquivTo = function(haystack, needle) {
+  // given a list of shapes (haystack) and a certain shape that's equivalent but
+  // not identical to a shape in haystack, return either null or the given
+  // shape.
+  var pointsEqual = function(point, index) {
+          return point[0] == needle.p[index][0] && point[1] == needle.p[index][1];
+        };
+  for (var i=0,l=haystack.length; i<l; i++) {
+    // Look through all the shape and see if we found the one we want
+    var galleryshape = haystack[i];
+    if (galleryshape.p.length == needle.p.length && galleryshape.p.every(pointsEqual)) {
+      return galleryshape;
+    }
+  }
+  return null;
+};
 Pagestore.prototype.deleteShapeFromPage = function(key, shape, cb) {
   // Delete shape from the page.
   var self = this;
   this.getPageInfo(key, function(pageInfo) {
       // find shape (pointwise comparison)
-      var foundShape = null,
-          pointsEqual = function(point, index) {
-              return point[0] == shape.p[index][0] && point[1] == shape.p[index][1];
-            };
-      for (var i=0,l=pageInfo.shapes.length; i<l; i++) {
-        // Look through all the shape and see if we found the one we want
-        var galleryshape = pageInfo.shapes[i];
-        if (galleryshape.p.length == shape.p.length && galleryshape.p.every(pointsEqual)) {
-          // remove it!
-          foundShape = shape;
-          break;
-        }
-      }
+      var shapes = pageInfo.shapes,
+          foundShape = self.findShapeEquivTo(shapes, shape);
       if (foundShape) {
-          pageInfo.shapes.splice(i, 1);
-            self.ks.set(key, {shapes: pageInfo.shapes},
+          shapes.splice(shapes.indexOf(foundShape), 1);
+            self.ks.set(key, {shapes: shapes},
               function(err){
                 if(err){
                   console.log(err.stack);
@@ -92,6 +97,9 @@ Pagestore.prototype.addShapeToPage = function(key, shape, cb) {
   var self = this;
   // now that we have everything we need, get the information and assemble 
   this.getPageInfo(key, function(pageInfo) {
+      if (self.findShapeEquivTo(pageInfo.shapes, shape)) {
+        return cb(false);
+      }
       pageInfo.shapes.push(shape);
       self.ks.set(key, {shapes: pageInfo.shapes}, // only save what we need
         function(err){
