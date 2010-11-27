@@ -6,11 +6,15 @@
 
     <script type="text/html" id="template">
         javascript: (function () {
-            window.GOGGLE_SERVER='%%%%%/page';
-            var scr = document.createElement('script');
-            scr.type = 'text/javascript';
-            scr.src = '%%%%%/bookmarklet.js?rand='+Math.random();
-            document.documentElement.appendChild(scr);
+            if (window.goggles && window.goggles.active) {
+                window.goggles.stop();
+            } else {
+                window.GOGGLE_SERVER='%%%%%/page';
+                var scr = document.createElement('script');
+                scr.type = 'text/javascript';
+                scr.src = '%%%%%/bookmarklet.js?rand='+Math.random();
+                document.documentElement.appendChild(scr);
+            }
         })();
     </script>
 
