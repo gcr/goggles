@@ -69,7 +69,7 @@ jQuery.noConflict();
       return {r:0,g:0,b:0};
     }
   }
-  function Picker(onPickColor, onExit) {
+  function Picker(onPickColor) {
     var self = this;
     this.jq = $("<div>").css({
       position: "fixed",
@@ -99,8 +99,6 @@ jQuery.noConflict();
         return colorjq;
       });
     colors[0].click();
-
-    var exitButton=$("<div>").text("exit").click(onExit).appendTo(this.jq);
   }
   Picker.prototype.del = function() {
     this.jq.fadeOut('fast', bind(this,function(){this.jq.remove();}));
@@ -232,7 +230,7 @@ jQuery.noConflict();
     this.curColor = {r:0,g:0,b:0};
     this.picker = new Picker(bind(this,function(color){
         this.curColor = color;
-      }), bind(this,function(){this.stop(function(){});}));
+      }));
 
     // Events
     this.canvas.oncontextmenu = function(){ return false; };
