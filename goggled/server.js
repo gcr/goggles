@@ -12,6 +12,7 @@ var http = require('http'),
     url = require('url'),
     Pagestore = require('./pagestore').Pagestore,
     ps = new Pagestore("store"),
+    bmr = require('./bookmarklet_renderer').makeRenderer,
     staticfiles = require('./static'),
     view = require('./view_helpers'),
     switchboard = require('./switchboard'),
@@ -33,7 +34,7 @@ function receive(req, res) {
           res.writeHead(404); res.end("No favicon here");
         },
 
-        'bookmarklet.js': staticfiles.makeSingleFileServer('../goggles.js'),
+        'bookmarklet.js': bmr(req, res),
 
         'page': switchboard.makeDispatchQueryOverloader(
             ['add', 'page','t','r','g','b','a','p'],
