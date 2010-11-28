@@ -62,14 +62,20 @@ Pagestore.prototype.getPageInfo = function(key, cb) {
 
 // things that modifiy state
 Pagestore.prototype.deleteShapeFromPage = function(key, shape, cb) {
+  // WARNING WARNING WARNING!
+  // ALL CODE PATHS MUST CALL BOTH CB _AND_ UNLOCK! Ensure that any necessary
+  // try/catch blocks are in place
+  var self = this;
   this.LockPage(key, function(unlock){
     // Delete shape from the page.
-    var self = this;
-    this.getPageInfo(key, function(pageInfo) {
+    self.getPageInfo(key, function(pageInfo) {
         // find shape (pointwise comparison)
         var shapes = pageInfo.shapes,
             foundShape = self.findShapeEquivTo(shapes, shape);
-        if (foundShape) {
+        if (!foundShape) {
+          cb(false);
+          unlock();
+        } else {
             shapes.splice(shapes.indexOf(foundShape), 1);
               self.ks.set(key, {shapes: shapes},
                 function(err){
@@ -85,18 +91,21 @@ Pagestore.prototype.deleteShapeFromPage = function(key, shape, cb) {
                     unlock();
                   }
                 });
-          }
+        }
       });
   });
 };
 
 Pagestore.prototype.addShapeToPage = function(key, shape, cb) {
+  // WARNING WARNING WARNING!
+  // ALL CODE PATHS MUST CALL BOTH CB _AND_ UNLOCK! Ensure that any necessary
+  // try/catch blocks are in place
+  var self = this;
   this.LockPage(key, function(unlock){
     // Adds a shape to the page.
     // First, we need to verify things about it.
-    var self = this;
     // now that we have everything we need, get the information and assemble 
-    this.getPageInfo(key, function(pageInfo) {
+    self.getPageInfo(key, function(pageInfo) {
         if (self.findShapeEquivTo(pageInfo.shapes, shape)) {
           cb(false);
           return unlock();

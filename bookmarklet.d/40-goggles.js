@@ -140,8 +140,15 @@ Goggles.prototype.beginErasing = function(ev) {
         this.shapes.map(bind(this, function(shape){
             if (shape.lineIntersects(curpoint, newpoint)) {
               // delete them
-              this.sendDeleteShape(shape);
-              this.shapes.splice(this.shapes.indexOf(shape), 1);
+              // todo: we don't want to  KEEP the shape but at the same time we
+              // also don't want to DISCARD the shape before we know it's been
+              // erased.
+              // so for now we'll just be sneaky! >:D
+              //this.shapes.splice(this.shapes.indexOf(shape), 1);
+              //if (!shape.erased) {
+                this.sendDeleteShape(shape);
+              //}
+              //shape.erased = true;
             }
             if (removedAShape) {
               this.redraw();
