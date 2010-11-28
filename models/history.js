@@ -20,7 +20,9 @@ History.prototype.add = function(obj) {
     // If people are waiting for us, then give them stuff.
     this.futures[now].forEach(function(cb) {
       clearTimeout(cb.timer);
-      cb.cb([obj]);
+      if (cb.cb) { // if it didn't time out
+        cb.cb([obj]);
+      }
     });
     delete this.futures[now];
   }
@@ -39,7 +41,11 @@ History.prototype.after = function(time, cb) {
     // later then.
     var cbData = {
         cb: cb,
-        timer: setTimeout(function(){ cb([]); }, this.emptyCbTimeout)
+        timer: setTimeout(function(){
+            // this gets run on timeout
+            cb([]);
+            cbData.cb = null;
+          }, this.emptyCbTimeout)
       };
     if (time in this.futures) {
       this.futures[time].push(cbData);
