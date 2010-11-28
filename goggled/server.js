@@ -12,13 +12,15 @@ var http = require('http'),
     url = require('url'),
     Pagestore = require('./pagestore').Pagestore,
     ps = new Pagestore("store"),
-    bmr = require('./bookmarklet_renderer').makeRenderer,
+    bmr = require('./bookmarklet_renderer'),
     staticfiles = require('./static'),
     view = require('./view_helpers'),
     switchboard = require('./switchboard'),
 
     PORT = 8002;
 
+bmr.load();
+bmr.closureCompile();
 
 function receive(req, res) {
   // this actually sends the response back
@@ -34,7 +36,7 @@ function receive(req, res) {
           res.writeHead(404); res.end("No favicon here");
         },
 
-        'bookmarklet.js': bmr(req, res),
+        'bookmarklet.js': bmr.makeRenderer(req, res),
 
         'page': switchboard.makeDispatchQueryOverloader(
             ['add', 'page','t','r','g','b','a','p'],

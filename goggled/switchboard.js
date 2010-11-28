@@ -1,6 +1,5 @@
 // Switchboard: Handles handing off requests
 var
-  sys         = require('sys'),
   assert      = require('assert'),
   url         = require('url');
 
