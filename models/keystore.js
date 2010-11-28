@@ -43,6 +43,11 @@ function Keystore(directory) {
 Keystore.prototype.set = function(key, value, cb) {
   // Set the key to the value and call cb(error).
   cb = cb || function(){};
+  // debug delay
+  var cb2 = cb;
+  cb = function(data){
+    console.log("delay");
+    setTimeout(function(){console.log("delay over"); cb2(data); }, 1000); };
   key = sha1(key);
   var base = key.substr(0,2),
       rest = key.substr(2), self = this;
@@ -61,6 +66,11 @@ Keystore.prototype.get = function(key, cb) {
   // call cb on the value stored in the key.
   // arg is 'undefined' if the object is not set.
   cb = cb || function(){};
+  // debug delay
+  var cb2 = cb;
+  cb = function(data){
+    console.log("delay");
+    setTimeout(function(){console.log("delay over"); cb2(data); }, 1000); };
   key = sha1(key);
   var base = key.substr(0,2),
       rest = key.substr(2), self = this;
