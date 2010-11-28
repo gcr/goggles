@@ -26,6 +26,7 @@ function Pagestore(dir) {
   this.ks = new Keystore(dir);
   this.histories = [];
 }
+
 Pagestore.prototype.getHistory = function(k) {
   // Return the history object associated with key k
   if (!(k in this.histories)) {
@@ -33,6 +34,7 @@ Pagestore.prototype.getHistory = function(k) {
   }
   return this.histories[k];
 };
+
 Pagestore.prototype.getPageInfo = function(key, cb) {
   // Retrieves informations about the page indexed by 'key' and passes it into
   // cb
@@ -50,6 +52,7 @@ Pagestore.prototype.getPageInfo = function(key, cb) {
       }
     });
 };
+
 Pagestore.prototype.findShapeEquivTo = function(haystack, needle) {
   // given a list of shapes (haystack) and a certain shape that's equivalent but
   // not identical to a shape in haystack, return either null or the given
@@ -66,6 +69,7 @@ Pagestore.prototype.findShapeEquivTo = function(haystack, needle) {
   }
   return null;
 };
+
 Pagestore.prototype.deleteShapeFromPage = function(key, shape, cb) {
   // Delete shape from the page.
   var self = this;
@@ -88,9 +92,9 @@ Pagestore.prototype.deleteShapeFromPage = function(key, shape, cb) {
                 }
               });
         }
-
     });
 };
+
 Pagestore.prototype.addShapeToPage = function(key, shape, cb) {
   // Adds a shape to the page.
   // First, we need to verify things about it.
@@ -115,6 +119,7 @@ Pagestore.prototype.addShapeToPage = function(key, shape, cb) {
         });
     });
 };
+
 Pagestore.prototype.streamPageUpdates = function(key, since, cb) {
   // Stream page updates to clients who ask for a given time.
   this.getHistory(key).after(since, cb);
