@@ -1,5 +1,7 @@
 /*globals Goggles Shape */
 // AJAX functions
+//
+// TODO: handle timeouts
 function ajaxRequest(url, data, cb) {
   // just like jQuery.getJSON but unlike jquery, this handles timeouts in a sane way.
   return $.ajax({

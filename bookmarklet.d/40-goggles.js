@@ -135,18 +135,18 @@ Goggles.prototype.beginErasing = function(ev) {
         this.canvas.onmousedown = bind(this, mdhandler);
     });
     this.canvas.onmousemove = bind(this, function(ev) {
-        var newpoint = this.untransform(pointsFromEv(ev));
-        var shapeToRemove = null;
-        this.shapes.map(function(shape){
+        var newpoint = this.untransform(pointsFromEv(ev)),
+            removedAShape = false;
+        this.shapes.map(bind(this, function(shape){
             if (shape.lineIntersects(curpoint, newpoint)) {
-              shapeToRemove = shape;
+              // delete them
+              this.sendDeleteShape(shape);
+              this.shapes.splice(this.shapes.indexOf(shape), 1);
             }
-          });
-        if (shapeToRemove) {
-          this.sendDeleteShape(shapeToRemove);
-          this.shapes.splice(this.shapes.indexOf(shapeToRemove), 1);
-          this.redraw();
-        }
+            if (removedAShape) {
+              this.redraw();
+            }
+          }));
         curpoint = newpoint;
     });
   }
