@@ -10,12 +10,12 @@
 
 var http = require('http'),
     url = require('url'),
-    Pagestore = require('./pagestore').Pagestore,
+    Pagestore = require('./models/pagestore').Pagestore,
     ps = new Pagestore("store"),
-    bmr = require('./bookmarklet_renderer'),
-    staticfiles = require('./static'),
-    view = require('./view_helpers'),
-    switchboard = require('./switchboard'),
+    bmr = require('./views/bookmarklet_renderer'),
+    staticfiles = require('./views/static'),
+    view = require('./views/view_helpers'),
+    switchboard = require('./views/switchboard'),
 
     PORT = 8002;
 
