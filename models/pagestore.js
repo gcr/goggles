@@ -7,8 +7,12 @@
 //  - add a shape to a page (also adds an {add_shape: shape} to the history)
 //  - stream history updates from the page
 //
+// we maintain a 'pending operations' log for each page that ensures that
+// operations that must change state happen only one at a time.
+//
 var Keystore = require('./keystore').Keystore,
     History = require('./history').History,
+    AsyncLock = require('./async_lock').AsyncLock,
 
     EMPTY_CB_TIMEOUT = 10*1000;
 
@@ -24,17 +28,20 @@ function unserializepoints(points) {
 function Pagestore(dir) {
   // Pagestore keeps info on pages and current visitors.
   this.ks = new Keystore(dir);
-  this.histories = [];
+  this.histories = {}; // this is for streaming updates to clients
+  this.locks = {}; // maps keys to 'continuation queue' objects that look
+  // like {page: PendingOps()}
+  //
+  // each operation that modifies state should instead put a function on
+  // the pending ops log and then call it.
 }
 
-Pagestore.prototype.getHistory = function(k) {
-  // Return the history object associated with key k
-  if (!(k in this.histories)) {
-    this.histories[k] = new History(EMPTY_CB_TIMEOUT);
-  }
-  return this.histories[k];
+Pagestore.prototype.LockPage = function(key, action) {
+  this.locks[key] = this.locks[key] || new AsyncLock();
+  this.locks[key].lock(action);
 };
 
+// stateless operations
 Pagestore.prototype.getPageInfo = function(key, cb) {
   // Retrieves informations about the page indexed by 'key' and passes it into
   // cb
@@ -53,6 +60,82 @@ Pagestore.prototype.getPageInfo = function(key, cb) {
     });
 };
 
+// things that modifiy state
+Pagestore.prototype.deleteShapeFromPage = function(key, shape, cb) {
+  this.LockPage(key, function(unlock){
+    // Delete shape from the page.
+    var self = this;
+    this.getPageInfo(key, function(pageInfo) {
+        // find shape (pointwise comparison)
+        var shapes = pageInfo.shapes,
+            foundShape = self.findShapeEquivTo(shapes, shape);
+        if (foundShape) {
+            shapes.splice(shapes.indexOf(foundShape), 1);
+              self.ks.set(key, {shapes: shapes},
+                function(err){
+                  if(err){
+                    console.log(err.stack);
+                    cb({err: "The server had a problem deleting the shape."});
+                    unlock();
+                  } else {
+                    cb(true);
+                    self.getHistory(key).add(
+                      {delete_shape: shape}
+                    );
+                    unlock();
+                  }
+                });
+          }
+      });
+  });
+};
+
+Pagestore.prototype.addShapeToPage = function(key, shape, cb) {
+  this.LockPage(key, function(unlock){
+    // Adds a shape to the page.
+    // First, we need to verify things about it.
+    var self = this;
+    // now that we have everything we need, get the information and assemble 
+    this.getPageInfo(key, function(pageInfo) {
+        if (self.findShapeEquivTo(pageInfo.shapes, shape)) {
+          cb(false);
+          return unlock();
+        }
+        pageInfo.shapes.push(shape);
+        self.ks.set(key, {shapes: pageInfo.shapes}, // only save what we need
+          function(err){
+            if(err){
+              console.log(err.stack);
+              cb({err: "The server had a problem saving the shape."});
+              unlock();
+            } else {
+              cb(true);
+              self.getHistory(key).add(
+                {add_shape: shape}
+              );
+              unlock();
+            }
+          });
+      });
+  });
+};
+
+// contuniation handling
+
+// history streaming
+Pagestore.prototype.getHistory = function(k) {
+  // Return the history object associated with key k
+  if (!(k in this.histories)) {
+    this.histories[k] = new History(EMPTY_CB_TIMEOUT);
+  }
+  return this.histories[k];
+};
+
+Pagestore.prototype.streamPageUpdates = function(key, since, cb) {
+  // Stream page updates to clients who ask for a given time.
+  this.getHistory(key).after(since, cb);
+};
+
 Pagestore.prototype.findShapeEquivTo = function(haystack, needle) {
   // given a list of shapes (haystack) and a certain shape that's equivalent but
   // not identical to a shape in haystack, return either null or the given
@@ -68,61 +151,6 @@ Pagestore.prototype.findShapeEquivTo = function(haystack, needle) {
     }
   }
   return null;
-};
-
-Pagestore.prototype.deleteShapeFromPage = function(key, shape, cb) {
-  // Delete shape from the page.
-  var self = this;
-  this.getPageInfo(key, function(pageInfo) {
-      // find shape (pointwise comparison)
-      var shapes = pageInfo.shapes,
-          foundShape = self.findShapeEquivTo(shapes, shape);
-      if (foundShape) {
-          shapes.splice(shapes.indexOf(foundShape), 1);
-            self.ks.set(key, {shapes: shapes},
-              function(err){
-                if(err){
-                  console.log(err.stack);
-                  cb({err: "The server had a problem deleting the shape."});
-                } else {
-                  cb(true);
-                  self.getHistory(key).add(
-                    {delete_shape: shape}
-                  );
-                }
-              });
-        }
-    });
-};
-
-Pagestore.prototype.addShapeToPage = function(key, shape, cb) {
-  // Adds a shape to the page.
-  // First, we need to verify things about it.
-  var self = this;
-  // now that we have everything we need, get the information and assemble 
-  this.getPageInfo(key, function(pageInfo) {
-      if (self.findShapeEquivTo(pageInfo.shapes, shape)) {
-        return cb(false);
-      }
-      pageInfo.shapes.push(shape);
-      self.ks.set(key, {shapes: pageInfo.shapes}, // only save what we need
-        function(err){
-          if(err){
-            console.log(err.stack);
-            cb({err: "The server had a problem saving the shape."});
-          } else {
-            cb(true);
-            self.getHistory(key).add(
-              {add_shape: shape}
-            );
-          }
-        });
-    });
-};
-
-Pagestore.prototype.streamPageUpdates = function(key, since, cb) {
-  // Stream page updates to clients who ask for a given time.
-  this.getHistory(key).after(since, cb);
 };
 
 Pagestore.prototype.verifyShape = function(points, t, r,g,b,a) {
