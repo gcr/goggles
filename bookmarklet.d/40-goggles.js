@@ -152,9 +152,10 @@ Goggles.prototype.beginErasing = function(ev) {
   }
 };
 Goggles.prototype.beginDrawing = function(ev){
-  var mdhandler = this.canvas.onmousedown;
   if (this.shapes !== null) {
-    var curshape = new Shape(5, this.curColor.r,this.curColor.g,this.curColor.b,1);
+    var mdhandler = this.canvas.onmousedown,
+        curshape = new Shape(5, this.curColor.r,this.curColor.g,this.curColor.b,1);
+    curshape.appendPoint(this.untransform(pointsFromEv(ev)));
     this.canvas.onmousedown = null;
     this.canvas.onmouseup = bind(this, function(ev) {
         if (curshape.p.length>=2) {
