@@ -39,7 +39,7 @@ The server keeps track of the shapes, streams new shape events to clients with
 jsonp, and manages pages.
 
 Deploy details
-==============
+--------------
 
 The server is written in nodejs. No extra dependencies are needed beyond
 node 0.3.1 or better. Note that it's quite stupid; there are memory leaks and
