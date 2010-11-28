@@ -14,6 +14,7 @@ AsyncLock.prototype.lock = function(action) {
   // WARNING WARNING WARNING! IF YOU DO NOT CALL UNLOCK, THE LOCK WILL REMAIN
   // LOCKED. Ensure that ALL code paths eventually call unlock or you WILL run
   // into troubles.
+  console.log("Lock");
   var self = this;
   this.ops.push(action);
   if (!this.locked) {
@@ -23,6 +24,7 @@ AsyncLock.prototype.lock = function(action) {
         if (self.ops.length===0) {
           // Done!
           self.locked = false;
+          console.log("Unlock");
         } else {
           // call the first action, passing in runNext
           self.ops.shift()(unlockOrRunNext);

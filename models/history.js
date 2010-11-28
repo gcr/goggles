@@ -16,13 +16,17 @@ History.prototype.time = function() {
 
 History.prototype.add = function(obj) {
   var now = this.time();
+  console.log("added to history,");
   if (now in this.futures) {
     // If people are waiting for us, then give them stuff.
     console.log(require('util').inspect(this.futures[now]));
     this.futures[now].forEach(function(cb) {
       clearTimeout(cb.timer);
       if (cb.cb) { // if it didn't time out
+        console.log("cb...");
         cb.cb([obj]);
+      } else {
+        console.log("stale cb");
       }
     });
     delete this.futures[now];
@@ -34,6 +38,7 @@ History.prototype.after = function(time, cb) {
   // Run the callback with all the actions that happened after the given time.
   // Block to wait for them if necessary.
 
+  console.log("waiting");
 
   if (time < this.time()) {
     // Aha! We can already fufill their request.
@@ -44,6 +49,7 @@ History.prototype.after = function(time, cb) {
     var cbData = {
         cb: cb,
         timer: setTimeout(function(){
+            console.log("timed out");
             // this gets run on timeout
             cb([]);
             cbData.cb = null;
