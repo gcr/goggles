@@ -14,8 +14,3 @@ function pointsFromEv(ev) {
     return [ev.offsetX, ev.offsetY];
   }
 }
-
-function getUrl() {
-  // return a unique URL for this page
-  return document.location.protocol+"//"+document.location.host+"/"+document.location.pathname;
-}
