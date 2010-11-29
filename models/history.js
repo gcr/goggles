@@ -21,8 +21,8 @@ History.prototype.add = function(obj) {
     // If people are waiting for us, then give them stuff.
     console.log(require('util').inspect(this.futures[now]));
     this.futures[now].forEach(function(cb) {
-      clearTimeout(cb.timer);
       if (cb.cb) { // if it didn't time out
+        clearTimeout(cb.timer);
         console.log("cb...");
         cb.cb([obj]);
       } else {
