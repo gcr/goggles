@@ -137,7 +137,6 @@ Goggles.prototype.sendShape = function(shape) {
   // todo: find a way of telling that we couldn't send the shape and
   // recovering
   var self = this;
-  this.waitingShapes.push(shape); // add to our list of shapes we're waiting on
   ajaxRequest(this.serverUrl, {
       page: this.url, add: 't',
       r: shape.r, g:shape.g, b:shape.b, a:shape.a,t:shape.t,

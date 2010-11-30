@@ -49,6 +49,7 @@ Goggles.prototype.beginDrawing = function(ev){
       curshape;
   function makeShape() {
     curshape = new Shape(5, self.curColor.r,self.curColor.g,self.curColor.b,1);
+    self.waitingShapes.push(curshape); // add to our list of shapes we're waiting on
   }
   function finishShape() {
     if (curshape.p.length>=2) {
