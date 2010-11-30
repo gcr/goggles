@@ -67,22 +67,12 @@ Goggles.prototype.beginDrawing = function(ev){
     });
     this.canvas.onmousemove = bind(this, function(ev) {
         curshape.appendPoint(this.untransform(pointsFromEv(ev)));
-        if (curshape.p.length >= 25) {
+        if (curshape.p.length >= 250) {
           finishShape(curshape);
           makeShape();
           curshape.appendPoint(this.untransform(pointsFromEv(ev)));
         }
         curshape.drawLast(this.ctx);
     });
-  }
-};
-Goggles.prototype.deleteShape = function(shape) {
-  // Delete the shape given by 'shape'
-  // Note that the shapes are not referentially identical
-  for (var i=0,l=this.shapes.length; i<l; i++) {
-    if (shape.pointwiseEqualTo(this.shapes[i])) {
-      this.shapes.splice(i, 1);
-      break;
-    }
   }
 };

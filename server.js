@@ -24,6 +24,7 @@ bmr.closureCompile();
 
 function receive(req, res) {
   // this actually sends the response back
+  console.log(req.url.length);
   function render(data) { return view.renderJson(req, res, data); }
   try {
     return switchboard.dispatch(req, res, url.parse(req.url).pathname, {

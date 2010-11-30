@@ -19,8 +19,11 @@ function Goggles(ajaxroot) {
   this.shapes = null;
   // the list of shapes to draw.
 
-  // used to find out whether we've stopped or not
+  this.waitingShapes = [];
+  // the list of shapes we've sent to the server but haven't heard back about.
+
   this.active = true;
+  // used to find out whether we've stopped or not
 
   this.historyStream = null;
 
@@ -60,6 +63,7 @@ function Goggles(ajaxroot) {
       this.picker.show();
     }));
 }
+
 Goggles.prototype.stop = function() {
   // Destroy a goggles object with optional callback
   this.active = false;

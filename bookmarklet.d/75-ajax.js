@@ -83,6 +83,17 @@ StreamingHistory.prototype.stop = function() {
   }
 };
 
+function deleteShape(list, shape) {
+  // Delete the shape given by 'shape' from the list.
+  // Note that the shapes are not referentially identical
+  for (var i=0,l=list.length; i<l; i++) {
+    if (shape.pointwiseEqualTo(list[i])) {
+      list.splice(i, 1);
+      break;
+    }
+  }
+}
+
 function serializePoints(points){
   // return the points in a suitable format for the server
   // [[1,2],[3,4]] => "1,2;3,4"
@@ -90,6 +101,7 @@ function serializePoints(points){
       return point[0]+","+point[1];
     }).join(';');
 }
+
 Goggles.prototype.connect = function(cb) {
   // Initial connection from the server.
   cb = cb || function(){};
@@ -109,10 +121,13 @@ Goggles.prototype.connect = function(cb) {
           json.nextUpdate,
           function(event) {
             if (event.add_shape) {
-              self.shapes.push(Shape.fromJSON(event.add_shape));
+              var shape = Shape.fromJSON(event.add_shape);
+              self.shapes.push(shape);
+              deleteShape(self.waitingShapes, shape);
+              console.log("Recieved shape, ",self.waitingShapes);
               self.redraw();
             } else if (event.delete_shape) {
-              self.deleteShape(Shape.fromJSON(event.delete_shape));
+              deleteShape(self.shapes, Shape.fromJSON(event.delete_shape));
               self.redraw();
             }
           });
@@ -123,6 +138,8 @@ Goggles.prototype.sendShape = function(shape) {
   // todo: find a way of telling that we couldn't send the shape and
   // recovering
   var self = this;
+  this.waitingShapes.push(shape); // add to our list of shapes we're waiting on
+  console.log("Drawing shape, ",this.waitingShapes); // TODO remove
   ajaxRequest(this.serverUrl, {
       page: this.url, add: 't',
       r: shape.r, g:shape.g, b:shape.b, a:shape.a,t:shape.t,

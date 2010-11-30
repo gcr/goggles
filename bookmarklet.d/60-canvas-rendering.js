@@ -8,14 +8,15 @@ Goggles.prototype.redraw = function() {
     var ctx = this.ctx;
     // clear
     this.resetCanvasXform();
-    for (var i=0,l=this.shapes.length; i<l; i++) {
-      var bb = this.shapes[i].boundingBox();
+    var toDraw = this.shapes.concat(this.waitingShapes);
+    for (var i=0,l=toDraw.length; i<l; i++) {
+      var bb = toDraw[i].boundingBox();
       // clip invisible shapes
       if (bb.right - window.scrollX + this.centerCoord > 0 &&
           bb.left - window.scrollX + this.centerCoord < this.canvas.width &&
           bb.bottom - window.scrollY > 0 &&
           bb.top - window.scrollY < this.canvas.height) {
-        this.shapes[i].draw(ctx);
+        toDraw[i].draw(ctx);
       }
     }
   }
