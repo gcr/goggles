@@ -104,7 +104,7 @@ Shape.prototype.lineIntersects = function(p1, p2) {
   }
   return false;
 };
-Shape.prototype.equalTo = function(other) {
+Shape.prototype.pointwiseEqualTo = function(other) {
   // Pointwise comparison
   if (other.p.length == this.p.length) {
     // Each point is equal?
