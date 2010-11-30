@@ -43,7 +43,7 @@ function receive(req, res) {
             function(req,res, add,page,t,r,g,b,a,p){
               var shape = ps.verifyShape(p, t, r, g, b, a);
               if (shape) {
-                console.log(req.headers['x-forwarded-for']||req.connection.remoteAddress+" +"+p.length+" points on "+page);
+                console.log((req.headers['x-forwarded-for']||req.connection.remoteAddress)+" +"+p.length+" points on "+page);
                 return ps.addShapeToPage(page, shape, render);
               } else {
                 view.failWith(req, res, "One or more of your shape paramaters is invalid.");
@@ -53,7 +53,7 @@ function receive(req, res) {
             function(req,res, del,page,t,r,g,b,a,p){
               // I know it's stupid to delete the shape by passing in every
               // parameter...
-                console.log(req.headers['x-forwarded-for']||req.connection.remoteAddress+" -"+p.length+" points on "+page);
+                console.log((req.headers['x-forwarded-for']||req.connection.remoteAddress)+" -"+p.length+" points on "+page);
               var shape = ps.verifyShape(p, t, r, g, b, a);
               if (shape) {
                 return ps.deleteShapeFromPage(page, shape, render);
