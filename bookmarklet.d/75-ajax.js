@@ -124,7 +124,6 @@ Goggles.prototype.connect = function(cb) {
               var shape = Shape.fromJSON(event.add_shape);
               self.shapes.push(shape);
               deleteShape(self.waitingShapes, shape);
-              console.log("Recieved shape, ",self.waitingShapes);
               self.redraw();
             } else if (event.delete_shape) {
               deleteShape(self.shapes, Shape.fromJSON(event.delete_shape));
@@ -139,7 +138,6 @@ Goggles.prototype.sendShape = function(shape) {
   // recovering
   var self = this;
   this.waitingShapes.push(shape); // add to our list of shapes we're waiting on
-  console.log("Drawing shape, ",this.waitingShapes); // TODO remove
   ajaxRequest(this.serverUrl, {
       page: this.url, add: 't',
       r: shape.r, g:shape.g, b:shape.b, a:shape.a,t:shape.t,
