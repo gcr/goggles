@@ -8,14 +8,16 @@ function History(emptyCbTimeout) {
   //                                 ]
   // if the callback times out, cb will be given an empty list.
   this.history = [];
+  this.erasedHistory = 0;
 }
 
 History.prototype.time = function() {
-  return this.history.length;
+  return this.history.length+this.erasedHistory;
 };
 
 History.prototype.add = function(obj) {
-  var now = this.time();
+  var now = this.time(),
+      self = this;
   if (now in this.futures) {
     // If people are waiting for us, then give them stuff.
     this.futures[now].forEach(function(cb) {
@@ -27,7 +29,13 @@ History.prototype.add = function(obj) {
     });
     delete this.futures[now];
   }
+
+  // timeout (TODO: needs test)
   this.history.push(obj);
+  setTimeout(function(){
+      self.history.shift();
+      self.erasedHistory++;
+    }, this.emptyCbTimeout);
 };
 
 History.prototype.after = function(time, cb) {
@@ -36,7 +44,7 @@ History.prototype.after = function(time, cb) {
 
   if (time < this.time()) {
     // Aha! We can already fufill their request.
-    cb(this.history.slice(time));
+    cb(this.history.slice(time-this.erasedHistory));
   } else {
     // UH OH we don't have anything yet. Best post it on our pegboard for
     // later then.
