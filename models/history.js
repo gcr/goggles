@@ -35,7 +35,7 @@ History.prototype.add = function(obj) {
   setTimeout(function(){
       self.history.shift();
       self.erasedHistory++;
-    }, this.emptyCbTimeout);
+    }, 5*this.emptyCbTimeout);
 };
 
 History.prototype.after = function(time, cb) {
