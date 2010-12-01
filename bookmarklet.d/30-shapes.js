@@ -87,12 +87,13 @@ Shape.prototype.draw = function(ctx) {
 };
 Shape.prototype.boundingBox = function() {
   // return the bounding box
-  return {
+  this.bbox = this.bbox || {
     left: Math.min.apply(null, this.p.map(function(point){return point[0];})),
     right: Math.max.apply(null, this.p.map(function(point){return point[0];})),
     top: Math.min.apply(null, this.p.map(function(point){return point[1];})),
     bottom: Math.max.apply(null, this.p.map(function(point){return point[1];}))
   };
+  return this.bbox;
 };
 Shape.prototype.lineIntersects = function(p1, p2) {
   // Return true if the line from p1 to p2 intersects any line in this shape
