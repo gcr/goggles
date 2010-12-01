@@ -129,6 +129,29 @@ Pagestore.prototype.addShapeToPage = function(key, shape, cb) {
   });
 };
 
+Pagestore.prototype.fadeShapes = function(key, diff, cutoffThresh) {
+  // TODO! move this elsewhere
+  // Fade all shapes on this page
+  var self = this;
+  this.LockPage(key, function(unlock){
+    self.getPageInfo(key, function(pageInfo) {
+        console.log(pageInfo.shapes.length+" shapes");
+        var newShapes = pageInfo.shapes
+          .map(function(shape){
+            shape.a = shape.a - diff;
+            return shape;
+          })
+          .filter(function(shape){
+            return shape.a >= cutoffThresh;
+          });
+        self.ks.set(key, {shapes: newShapes}, // only save what we need
+          function(){
+            unlock();
+          });
+      });
+  });
+};
+
 // contuniation handling
 
 // history streaming

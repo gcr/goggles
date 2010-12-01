@@ -15,12 +15,15 @@ var http = require('http'),
     bmr = require('./views/bookmarklet_renderer'),
     staticfiles = require('./views/static'),
     view = require('./views/view_helpers'),
+    fading = require('./models/fading.js'),
     switchboard = require('./views/switchboard'),
 
     PORT = 8002;
 
 bmr.load();
 bmr.closureCompile();
+
+fading.fade(ps);
 
 function receive(req, res) {
   // this actually sends the response back
