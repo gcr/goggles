@@ -48,12 +48,22 @@ Pagestore.prototype.getPageInfo = function(key, cb) {
   var self = this;
   this.ks.get(key, function(info) {
       if (info) {
-        cb({shapes: info.shapes,
+        cb({shapes: info.shapes.map(function(shape, index){
+              // Assign a shape ID if it does not already have one.
+              if (typeof shape.id == 'undefined') {
+                console.log("NO ID");
+                shape.id = index;
+                info.nextId = (info.nextId||0)+1;
+              }
+              return shape;
+            }),
+            nextId: info.nextId,
             nextUpdate: self.getHistory(key).time()
           });
       } else {
         cb({first: true,
             shapes: [],
+            nextId: 0,
             nextUpdate: self.getHistory(key).time()
           });
       }
@@ -77,7 +87,9 @@ Pagestore.prototype.deleteShapeFromPage = function(key, shape, cb) {
           unlock();
         } else {
             shapes.splice(shapes.indexOf(foundShape), 1);
-              self.ks.set(key, {shapes: shapes},
+              // TODO: FIX THAT
+              self.ks.set(key, {shapes: shapes,
+                                nextId: pageInfo.nextId},
                 function(err){
                   if(err){
                     console.log(err.stack);
@@ -110,8 +122,11 @@ Pagestore.prototype.addShapeToPage = function(key, shape, cb) {
           cb(false);
           return unlock();
         }
+        shape.id = pageInfo.nextId;
+        pageInfo.nextId++;
         pageInfo.shapes.push(shape);
-        self.ks.set(key, {shapes: pageInfo.shapes}, // only save what we need
+        self.ks.set(key, {shapes: pageInfo.shapes,
+                          nextId: pageInfo.nextId}, // only save what we need
           function(err){
             if(err){
               console.log(err.stack);
