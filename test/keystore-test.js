@@ -20,10 +20,10 @@ vows.describe('Keystores').addBatch(
       topic: function(ks){ ks.set('something', {1: 2, 3: "foo"}, this.callback); },
 
       'with no errors.': function(e) {
-        assert.isTrue(typeof e == 'undefined');
+        assert.strictEqual(e, undefined);
       },
 
-      'and when retrieved': {
+      'and when retrieved,': {
         topic: function(a, ks){
           var cb = this.callback;
           ks.get('something', cb);
@@ -35,10 +35,10 @@ vows.describe('Keystores').addBatch(
       }
     },
 
-    'should return undefined for something that does not exist.': {
+    'can get a nonexistant key': {
       topic: function(ks){ ks.get('nonexistant', this.callback); },
-      'we should get undefined': function(retr){
-        assert.isTrue(typeof retr == 'undefined');
+      'It should be undefined.': function(retr){
+        assert.strictEqual(retr, undefined);
       }
     }
 

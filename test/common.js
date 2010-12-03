@@ -19,8 +19,12 @@ exports.AFreshDir = function(dir, obj) {
 };
 
 exports.AFreshKeystore = function(dir, obj) {
-  obj.topic = function(){ return new Keystore(dir);};
-  return exports.AFreshDir(dir, {
-      'a fresh KS': obj
-    });
+  obj.topic = function(){
+    var cb = this.callback;
+    exports.withFreshDir(dir, function(e, v){
+        var ks = new Keystore(dir);
+        cb(null, ks);
+      });
+  };
+  return { 'A fresh Keystore': obj };
 };
