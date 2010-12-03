@@ -1,0 +1,3 @@
+[submodule "tests/vows"]
+	path = tests/vows
+	url = git://github.com/cloudhead/vows.git
