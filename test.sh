@@ -1,5 +1,5 @@
 #!/bin/sh
 
-[ -x tests/lib/vows/bin/vows ] || git submodule init && git submodule update
+[ -x test/lib/vows/bin/vows ] || git submodule init && git submodule update
 
-NODE_PATH=tests/lib/eyes/lib/ ./tests/lib/vows/bin/vows
+NODE_PATH=test/lib/eyes/lib/ ./test/lib/vows/bin/vows
