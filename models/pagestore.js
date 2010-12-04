@@ -12,9 +12,7 @@
 //
 var Keystore = require('./keystore').Keystore,
     History = require('./history').History,
-    AsyncLock = require('./async_lock').AsyncLock,
-
-    EMPTY_CB_TIMEOUT = 10*1000;
+    AsyncLock = require('./async_lock').AsyncLock;
 
 function unserializepoints(points) {
   // This function turns a string with commas and semicolons into a new one.
@@ -25,7 +23,7 @@ function unserializepoints(points) {
   // note that obviously this requires more validation than THAT. psh.
 }
 
-function Pagestore(dir) {
+function Pagestore(dir, emptyCbTimeout) {
   // Pagestore keeps info on pages and current visitors.
   this.ks = new Keystore(dir);
   this.histories = {}; // this is for streaming updates to clients
@@ -173,7 +171,7 @@ Pagestore.prototype.fadeShapes = function(key, diff, cutoffThresh) {
 Pagestore.prototype.getHistory = function(k) {
   // Return the history object associated with key k
   if (!(k in this.histories)) {
-    this.histories[k] = new History(EMPTY_CB_TIMEOUT);
+    this.histories[k] = new History(this.emptyCbTimeout);
   }
   return this.histories[k];
 };
