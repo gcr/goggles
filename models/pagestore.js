@@ -28,6 +28,7 @@ function Pagestore(dir, emptyCbTimeout) {
   this.ks = new Keystore(dir);
   this.histories = {}; // this is for streaming updates to clients
   this.locks = {}; // maps keys to 'continuation queue' objects that look
+  this.emptyCbTimeout = emptyCbTimeout;
   // like {page: PendingOps()}
   //
   // each operation that modifies state should instead put a function on
@@ -203,11 +204,11 @@ Pagestore.prototype.verifyShape = function(points, t, r,g,b,a) {
   // TODO: move this elsewhere; it doesn't belong here. It belongs in the view
   // object or something.
   try {
-    t = parseFloat(t)||3;
-    r = parseFloat(r)||0;
-    g = parseFloat(g)||0;
-    b = parseFloat(b)||0;
-    a = parseFloat(a)||1;
+    t = t? parseFloat(t):3;
+    r = r? parseFloat(r):0;
+    g = g? parseFloat(g):0;
+    b = b? parseFloat(b):0;
+    a = a? parseFloat(a):1;
     // now verify points
     points = unserializepoints(points)
       .filter(function(point) {
