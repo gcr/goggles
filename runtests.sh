@@ -3,7 +3,6 @@
 [ -x test/lib/vows/bin/vows ] || git submodule init && git submodule update
 
 if [ $1 = '--spec' ]; then
-    echo "omg"
     shift
     SPEC='--spec'
 fi

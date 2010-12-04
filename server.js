@@ -12,8 +12,10 @@ var site = require('./site'),
     conf = {
       port: 8002,
       emptyCbTimeout: 10*1000,
-      storeDir: "store"
+      storeDir: "store",
+      closure: true,
+      fade: true
     };
 
-  console.log(site.makeGogglesServer(conf));
+site.makeGogglesServer(conf);
 console.log('Server running at http://127.0.0.1:'+conf.port+'/');

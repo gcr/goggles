@@ -15,17 +15,18 @@ var http = require('http'),
     staticfiles = require('./views/static'),
     view = require('./views/view_helpers'),
     fading = require('./models/fading.js'),
-    switchboard = require('./views/switchboard'),
-
-    PORT = 8002;
+    switchboard = require('./views/switchboard');
 
 exports.makeGogglesServer = function(conf) {
   var ps = new Pagestore(conf.storeDir, conf.emptyCbTimeout);
 
-  bmr.load();
-  bmr.closureCompile();
-
-  fading.fade(ps);
+  if (conf.closure) {
+    bmr.load();
+    bmr.closureCompile();
+  }
+  if (conf.fade) {
+    fading.fade(ps);
+  }
 
   function receive(req, res) {
     // this actually sends the response back
