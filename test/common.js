@@ -18,13 +18,12 @@ exports.AFreshDir = function(dir, obj) {
   return { 'In a fresh dir,': obj };
 };
 
-exports.AFreshKeystore = function(dir, obj) {
-  obj.topic = function(){
+exports.AFreshKeystore = function(dir) {
+  return function(){
     var cb = this.callback;
     exports.withFreshDir(dir, function(e, v){
         var ks = new Keystore(dir);
         cb(null, ks);
       });
   };
-  return { 'A fresh Keystore': obj };
 };
