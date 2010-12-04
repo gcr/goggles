@@ -188,6 +188,7 @@ function serveFile(webroot, urlPath, req, res) {
             }
           );
           res.end(contents);
+          contents = null;
         }
       );
     }
