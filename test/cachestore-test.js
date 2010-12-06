@@ -25,13 +25,36 @@ vows.describe('Caching stores').addBatch({
         },
         'and after timing out': {
           topic: function(cs) {
-            var cb = this.callback;
             this.cs = cs;
-            setTimeout(cb, 150);
+            setTimeout(this.callback, 150);
           },
           'should forget what it had': function(e,v) {
             assert.equal(this.cs.get('foo', undefined));
           }
+        }
+      }
+    },
+
+    'A fresh cache store with something in it': {
+      topic: function(){
+        var cs = new CacheStore(100);
+        this.cs=cs;
+        cs.set('hello', 'world');
+        return cs;
+      },
+      'when poked after a while': {
+        topic: function(cs){
+          var cb=this.callback;
+          setTimeout(function(){
+              cs.get('hello');
+              setTimeout(function(){
+                  cs.get('hello');
+                  setTimeout(cb, 50);
+                }, 50);
+            }, 50);
+        },
+        'will still remember things that would have timed out':function(){
+          assert.equal(this.cs.get('hello'), 'world');
         }
       }
     }
