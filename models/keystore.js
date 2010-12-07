@@ -66,10 +66,10 @@ Keystore.prototype.get = function(key, cb) {
       rest = key.substr(2), self = this;
     fs.readFile(path.join(self.dir, base, rest), function(err, data) {
         if (err) {
-          cb(); // cb will have undefined
+          return cb(); // cb will have undefined
         }
         try {
-          cb(JSON.parse(data.toString()));
+          cb(JSON.parse(data.toString().trim()));
         } catch(e) {
           cb();
           // we should handle this better because this means that the object was

@@ -1,0 +1,6 @@
+[submodule "test/lib/eyes"]
+	path = test/lib/eyes
+	url = git://github.com/cloudhead/eyes.js.git
+[submodule "test/lib/vows"]
+	path = test/lib/vows
+	url = git://github.com/cloudhead/vows.git
