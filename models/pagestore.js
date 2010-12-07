@@ -31,8 +31,8 @@ Pagestore.prototype.getPageInfo = function(key, cb) {
 };
 
 // things that modifiy state
-Pagestore.prototype.deleteShapeFromPage = function(key, shape, cb) {
-  return this.get(key).deleteShapeFromPage(shape, cb);
+Pagestore.prototype.deleteShapeFromPage = function(key, shapeId, cb) {
+  return this.get(key).deleteShapeFromPage(shapeId, cb);
 };
 
 Pagestore.prototype.addShapeToPage = function(key, shape, cb) {

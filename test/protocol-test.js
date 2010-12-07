@@ -105,15 +105,13 @@ vows.describe('Client-server protocol').addBatch({
         }),
       'The page can then delete shapes.': {
         topic: getJSON({page: 'http://many-shapes-add//',
-            t: 15, r: 0, g: 25, b: 250, a: 0,
-            p: "1,2;3,5;9,19;", del: 't'}),
+            id: 1, del: 't'}),
         'Afterwards,': {
           topic: getJSON({page: 'http://many-shapes-add//'}),
           'when deleting the same shape': {
             topic: getJSON({page: 'http://many-shapes-add//',
-                t: 15, r: 0, g: 25, b: 250, a: 0,
-                p: "1,2;3,5;9,19;", del: 't'}),
-            'it should detect the new shape as a duplicate and return *false*':
+                id: 1, del: 't'}),
+            'it should return *false* because it is already deleted':
               herr(function(page){
                 assert.isFalse(page);
               })
@@ -148,36 +146,34 @@ vows.describe('Client-server protocol').addBatch({
 
 // A server
 'can stream updates such that when we add shapes': {
-topic: function(){
-  getJSON({page: 'http://streaming-test//', stream: 0}, this.callback)();
-  setTimeout(function(){
-    getJSON({page: 'http://streaming-test//',
-      t: 1, r: 0, g: 25, b: 250, a: 0,
-      p: "1,2;3,4;5,6;",add: 't'},function(){})();
-  },25);
-},
-'they should be reported': herr(function(data){
-  assert.deepEqual(data, [
-      {add_shape: { t: 1, r: 0, g: 25, b: 250, a: 0,
-      p: [[1,2],[3,4],[5,6]],id:0}}
-    ]);
-}),
-'and when we delete shapes': {
-topic: function(){
-  getJSON({page: 'http://streaming-test//', stream: 1}, this.callback)();
-  setTimeout(function(){
-    getJSON({page: 'http://streaming-test//',
-      t: 1, r: 0, g: 25, b: 250, a: 0,
-      p: "1,2;3,4;5,6;",del: 't'},function(){})();
-  },25);
-},
-  'we should notice that too': herr(function(data){
+  topic: function(){
+    getJSON({page: 'http://streaming-test//', stream: 0}, this.callback)();
+    setTimeout(function(){
+      getJSON({page: 'http://streaming-test//',
+        t: 1, r: 0, g: 25, b: 250, a: 0,
+        p: "1,2;3,4;5,6;",add: 't'},function(){})();
+    },25);
+  },
+  'they should be reported': herr(function(data){
     assert.deepEqual(data, [
-        {delete_shape: { t: 1, r: 0, g: 25, b: 250, a: 0,
-        p: [[1,2],[3,4],[5,6]] }}
+        {add_shape: { t: 1, r: 0, g: 25, b: 250, a: 0,
+        p: [[1,2],[3,4],[5,6]],id:0}}
       ]);
-  })
-}
+  }),
+  'and when we delete shapes': {
+  topic: function(){
+    getJSON({page: 'http://streaming-test//', stream: 1}, this.callback)();
+    setTimeout(function(){
+      getJSON({page: 'http://streaming-test//',
+        id: 0,del: 't'},function(){})();
+    },25);
+  },
+    'we should notice that too': herr(function(data){
+      assert.deepEqual(data, [
+          {delete_shape: 0}
+        ]);
+    })
+  }
 },
 
 

@@ -49,23 +49,27 @@ exports.makeGogglesServer = function(conf) {
               function(req,res, add,page,t,r,g,b,a,p){
                 var shape = ps.verifyShape(p, t, r, g, b, a);
                 if (shape) {
-                  console.log((req.headers['x-forwarded-for']||req.connection.remoteAddress)+" +"+p.length+" points on "+page);
+                  console.log((req.headers['x-forwarded-for']||req.connection.remoteAddress)+" +++ "+page);
                   return ps.addShapeToPage(page, shape, render);
                 } else {
                   view.failWith(req, res, "One or more of your shape paramaters is invalid.");
                 }
               },
-              ['del', 'page','t','r','g','b','a','p'],
-              function(req,res, del,page,t,r,g,b,a,p){
+              ['del', 'page','id'],
+              function(req,res, del,page,id){
                 // I know it's stupid to delete the shape by passing in every
                 // parameter...
-                  console.log((req.headers['x-forwarded-for']||req.connection.remoteAddress)+" -"+p.length+" points on "+page);
-                var shape = ps.verifyShape(p, t, r, g, b, a);
-                if (shape) {
-                  return ps.deleteShapeFromPage(page, shape, render);
-                } else {
-                  view.failWith(req, res, "One or more of your shape paramaters is invalid.");
-                }
+                  console.log((req.headers['x-forwarded-for']||req.connection.remoteAddress)+" --- "+page);
+                  try {
+                    var p = parseInt(id, 10);
+                    if (isNaN(p)) {
+                      return view.failWith(req, res, "One or more of your shape paramaters is invalid.");
+                    } else {
+                      return ps.deleteShapeFromPage(page, parseInt(id, 10), render);
+                    }
+                  } catch(e) {
+                    view.failWith(req, res, "One or more of your shape paramaters is invalid.");
+                  }
               },
               ['stream', 'page'],
               function(req,res, stream,page){

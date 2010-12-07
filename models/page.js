@@ -84,7 +84,7 @@ Page.prototype.sync = function(cb) {
     });
 };
 
-Page.prototype.deleteShapeFromPage = function(shape, cb) {
+Page.prototype.deleteShapeFromPage = function(shapeId, cb) {
   // WARNING WARNING WARNING!
   // ALL CODE PATHS MUST CALL BOTH CB _AND_ UNLOCK! Ensure that any necessary
   // try/catch blocks are in place
@@ -94,12 +94,18 @@ Page.prototype.deleteShapeFromPage = function(shape, cb) {
     self.get(function(pageInfo) {
         // find shape (pointwise comparison)
         var shapes = pageInfo.shapes,
-            foundShape = self.findShapeEquivTo(shapes, shape);
-        if (!foundShape) {
+            foundShape = null;
+        pageInfo.shapes.forEach(function(shape, id) {
+            // todo! keep shapes inside a dictionary
+            if (shape.id == shapeId) {
+              foundShape = id;
+            }
+          });
+        if (foundShape === null) {
           cb(false);
           unlock();
         } else {
-          shapes.splice(shapes.indexOf(foundShape), 1);
+          shapes.splice(foundShape, 1);
           // TODO: FIX THAT
           self.sync(function(err){
             if(err){
@@ -109,7 +115,7 @@ Page.prototype.deleteShapeFromPage = function(shape, cb) {
             } else {
               cb(true);
               self.history.add(
-                {delete_shape: shape}
+                {delete_shape: shapeId}
               );
               unlock();
             }

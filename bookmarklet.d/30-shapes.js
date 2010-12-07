@@ -29,7 +29,7 @@ function intersect(p1, p2,  p3, p4) {
 }
 
 // SHAPES
-function Shape(thickness, r,g,b,a, points) {
+function Shape(thickness, r,g,b,a, points, id) {
   // Takes a position, thickness, and rgba colors
   // Each shape looks like this:
   // {p: [ [x,y], [x,y], [x,y], ...], points
@@ -42,10 +42,11 @@ function Shape(thickness, r,g,b,a, points) {
   this.b = b;
   this.a = a;
   this.p = points||[];
+  this.id = id || null;
 }
 Shape.fromJSON = function(shape) {
   // Convert an array of shapes to real shapes.
-  return new Shape(shape.t, shape.r,shape.g,shape.b,shape.a, shape.p);
+  return new Shape(shape.t, shape.r,shape.g,shape.b,shape.a, shape.p, shape.id);
 };
 Shape.prototype.appendPoint = function(point) {
   // Append a point to this shape.

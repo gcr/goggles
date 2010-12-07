@@ -94,6 +94,18 @@ function deleteShape(list, shape) {
   }
 }
 
+function deleteShapeWithID(list, id) {
+  // Delete the shape with the certain ID from the list.
+  // Note that the shapes are not referentially identical
+  for (var i=0,l=list.length; i<l; i++) {
+    if (list[i].id == id) {
+      list.splice(i, 1);
+      i--; l--;
+      break;
+    }
+  }
+}
+
 function serializePoints(points){
   // return the points in a suitable format for the server
   // [[1,2],[3,4]] => "1,2;3,4"
@@ -114,6 +126,7 @@ Goggles.prototype.connect = function(cb) {
         return self.stop();
       }
       if (self.active) {
+        // collect things
         self.shapes = json.shapes.map(Shape.fromJSON);
         self.redraw();
         cb();
@@ -126,7 +139,7 @@ Goggles.prototype.connect = function(cb) {
               deleteShape(self.waitingShapes, shape);
               self.redraw();
             } else if (event.delete_shape) {
-              deleteShape(self.shapes, Shape.fromJSON(event.delete_shape));
+              deleteShapeWithID(self.shapes, parseInt(event.delete_shape, 10));
               self.redraw();
             }
           });
@@ -152,10 +165,10 @@ Goggles.prototype.sendDeleteShape = function(shape) {
   // todo: find a way of telling that we couldn't erase the shape and
   // recovering
   var self = this;
+  if (shape.id === null) { return; }
   ajaxRequest(this.serverUrl, {
       page: this.url, del: 't',
-      r: shape.r, g:shape.g, b:shape.b, a:shape.a,t:shape.t,
-      p:serializePoints(shape.p)},
+      id: shape.id},
     function(data){
       if (data && data.err) {
         alert("There was a problem deleting the shape.");
