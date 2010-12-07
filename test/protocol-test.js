@@ -30,9 +30,9 @@ vows.describe('Client-server protocol').addBatch({
     'should respond with a page': herr(function(page) {
       assert.ok(page);
     }),
-    'the page should be marked as `first`': herr(function(page) {
-      assert.isTrue(page.first);
-    }),
+    //'the page should be marked as `first`': herr(function(page) {
+    //  assert.isTrue(page.first);
+    //}),
     'the page should be empty': herr(function(page) {
       assert.length(page.shapes, 0);
     }),

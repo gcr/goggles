@@ -18,6 +18,7 @@ CacheStore.prototype.resetTimeout = function(k) {
     clearTimeout(this.timers[k]);
   }
   this.timers[k] = setTimeout(function(){
+      console.log("Timed out "+k);
       delete self.data[k];
       delete self.timers[k];
     }, this.timeout);
