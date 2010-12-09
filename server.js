@@ -11,7 +11,7 @@
 var site = require('./site'),
     conf = {
       port: 8002,
-      emptyCbTimeout: 10*1000,
+      emptyCbTimeout: 25*1000,
       storeDir: "store",
       closure: true,
       fade: true
