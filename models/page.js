@@ -27,6 +27,9 @@ function Page(ks, key, emptyCbTimeout) {
 // stateless operations
 Page.prototype.get = function(cb) {
   // Ensures that this.info is filled.
+  // Then returns it.
+  // TODO: when we say pageInfo.shapes, then ensure that that's correctly
+  // changed if we don't return pageInfo
   var self = this;
   if (this.info !== null) {
     return cb(this.info);
@@ -174,6 +177,7 @@ Page.prototype.fadeShapes = function(diff, cutoffThresh) {
           .filter(function(shape){
             return shape.a >= cutoffThresh;
           });
+        pageInfo.shapes = newShapes;
         self.sync(unlock);
       });
   });
