@@ -20,8 +20,8 @@ var http = require('http'),
 exports.makeGogglesServer = function(conf) {
   var ps = new Pagestore(conf.storeDir, conf.emptyCbTimeout);
 
+  bmr.load();
   if (conf.closure) {
-    bmr.load();
     bmr.closureCompile();
   }
   if (conf.fade) {
