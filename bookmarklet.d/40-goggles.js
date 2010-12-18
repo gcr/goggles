@@ -33,8 +33,11 @@ function Goggles(ajaxroot) {
 
   // Color picker
   this.curColor = {r:0,g:0,b:0};
+  this.curBrushSize = 5;
   this.picker = new Picker(bind(this,function(color){
       this.curColor = color;
+    }), bind(this,function(size){
+      this.curBrushSize = size;
     }));
 
   // Events

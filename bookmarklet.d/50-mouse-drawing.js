@@ -21,7 +21,7 @@ Goggles.prototype.beginErasing = function(ev) {
         var newpoint = this.untransform(pointsFromEv(ev)),
             removedAShape = false;
         for (var i=0,l=this.shapes.length; i<l; i++) {
-          if (this.shapes[i].pointIntersects(newpoint, 10) ||
+          if (this.shapes[i].pointIntersects(newpoint, this.curBrushSize) ||
               this.shapes[i].lineIntersects(curpoint, newpoint)) {
             // delete them
             // todo: we don't want to  KEEP the shape but at the same time we
@@ -49,7 +49,7 @@ Goggles.prototype.beginDrawing = function(ev){
       self = this,
       curshape;
   function makeShape() {
-    curshape = new Shape(5, self.curColor.r,self.curColor.g,self.curColor.b,1);
+    curshape = new Shape(self.curBrushSize, self.curColor.r,self.curColor.g,self.curColor.b,1);
     self.waitingShapes.push(curshape); // add to our list of shapes we're waiting on
   }
   function finishShape() {
