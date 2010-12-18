@@ -20,20 +20,21 @@ Goggles.prototype.beginErasing = function(ev) {
     this.canvas.onmousemove = bind(this, function(ev) {
         var newpoint = this.untransform(pointsFromEv(ev)),
             removedAShape = false;
-          for (var i=0,l=this.shapes.length; i<l; i++) {
-            if (this.shapes[i].lineIntersects(curpoint, newpoint)) {
-              // delete them
-              // todo: we don't want to  KEEP the shape but at the same time we
-              // also don't want to DISCARD the shape before we know it's been
-              // erased.
-              // so for now we'll just be sneaky! >:D
-              this.sendDeleteShape(this.shapes[i]);
-              this.shapes.splice(this.shapes.indexOf(this.shapes[i]), 1);
-              i--;
-              l--;
-              removedAShape = true;
-            }
+        for (var i=0,l=this.shapes.length; i<l; i++) {
+          if (this.shapes[i].pointIntersects(newpoint, 10) ||
+              this.shapes[i].lineIntersects(curpoint, newpoint)) {
+            // delete them
+            // todo: we don't want to  KEEP the shape but at the same time we
+            // also don't want to DISCARD the shape before we know it's been
+            // erased.
+            // so for now we'll just be sneaky! >:D
+            this.sendDeleteShape(this.shapes[i]);
+            this.shapes.splice(this.shapes.indexOf(this.shapes[i]), 1);
+            i--;
+            l--;
+            removedAShape = true;
           }
+        }
         if (removedAShape) {
           this.redraw();
         }
