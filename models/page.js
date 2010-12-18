@@ -41,9 +41,9 @@ Page.prototype.get = function(cb) {
           self.info = {
             shapes: diskInfo.shapes.map(function(shape, index){
                 // Assign each shape an ID if it does not already have one.
-                if (typeof shape.id == 'undefined') {
+                if (typeof shape.id == 'undefined' || shape.id === null) {
                   shape.id = index;
-                  diskInfo.nextId = (diskInfo.nextId||0)+1;
+                  diskInfo.nextId = (diskInfo.nextId||index)+1;
                 }
                 return shape;
               }),
