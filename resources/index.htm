@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
+    <meta name="description" content="The Underground Painter's Club" />
 	<title>Goggles</title>
 
     <script type="text/html" id="template">
@@ -48,16 +49,21 @@
             color: #d0dfdc;
             background-color: #90bfc6;
         }
-        #center {
-            background-color: #d0dfdc;
-            color: #90bfc6;
+        .center {
             width: 800px;
             margin-left: auto;
             margin-right: auto;
+        }
+        #brighter {
+            background-color: #d0dfdc;
+            color: #90bfc6;
             border-radius: 12px;
             padding: 1em;
             text-align: center;
             font-weight: bold;
+        }
+        #brighter strong {
+            color: #0f657d;
         }
 
         h1 {
@@ -65,6 +71,12 @@
             font-weight: bold;
             font-size: 300%;
             padding: 0.7em;
+        }
+        h2 {
+            text-align: center;
+            font-weight: bold;
+            font-size: 200%;
+            padding: 0.2em;
         }
 
         /* thanks to
@@ -103,20 +115,77 @@
         .vspace {
             height: 150em;
         }
+
+        .rules {
+            font-size: 75%;
+        }
     </style>
 
 </head>
 <body>
-    <div id="center">
+    <div id="brighter" class="center">
         <h1>Open your eyes...</h1>
 
         <a id="bmlink" name="Goggles"
             href="http://www.mozilla.com/en-US/firefox/firefox.html">You need
             Firefox.</a>
-        Drag this bookmarklet to your bookmarks bar.<br />
-        You need Firefox or Chrome to use goggles.
+        <p>
+            Drag this bookmarklet to your bookmarks bar.<br />
+            You need Firefox or Chrome to use goggles.
+        </p>
+        <p>
+            <strong>Activate</strong> on any webpage.<br />
+            <strong>Draw</strong> with the left mouse button.<br />
+            <strong>Erase</strong> with the right mouse button.
+        </p>
 
         <div class="vspace"> </div>
+    </div>
+    <div class="center rules">
+        <a name="terms"></a><h2>Rules</h2>
+
+            <p>
+                By installing and/or using this bookmarklet, you agree to abide
+                by the following terms:
+            </p>
+            
+            <p>
+                We reserve the right to block your access to this service for
+                any reason, or for no reason at all.
+            </p>
+
+            <p>
+                Do not draw offensive or hurtful images, such as swastikas,
+                reproductive organs, or hate speech.
+            </p>
+
+            <p>
+                Certain websites (especially popular ones) tend to have
+                <strong>NSFW</strong>, offensive, lewd, or derogatory drawings.
+                Guard yourself appropriately.
+                Neither the contributors to this software nor the administrators
+                of this website are responsible or liable for the drawings this
+                service enables you to see.
+            </p>
+
+            <p>
+                This software and service is provided by the administrators and
+                contributors "as is" and any express or implied warranties,
+                including, but not limited to, the implied warranties of
+                merchantability and fitness for a particular purpose are
+                disclaimed. In no event shall the administrators of this website
+                or any of the contributors to the software's source code be
+                liable for any direct, indirect, incidental, special, exemplary,
+                or consequential damages (including, but not limited to,
+                procurement of substitute goods or services; loss of use, data,
+                profits, or privacy; breach of security; psychological trauma;
+                or business interruption) however caused and on any theory of
+                liability, whether in contract, strict liability, or tort
+                (including negligence or otherwise) arising in any way out of
+                the use of this software, even if advised of the possibility of
+                such damage.
+            </p>
+
     </div>
 </body>
 </html>
