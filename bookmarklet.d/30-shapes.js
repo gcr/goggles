@@ -110,6 +110,7 @@ Shape.prototype.drawLast = function(ctx) {
     ctx.strokeStyle = "rgba("+this.r+","+this.g+","+this.b+","+this.a+")";
     ctx.lineWidth = this.t;
     ctx.lineCap = "round";
+    ctx.lineJoin = "round";
     ctx.beginPath();
     ctx.moveTo.apply(ctx, a);
     ctx.lineTo.apply(ctx, b);
