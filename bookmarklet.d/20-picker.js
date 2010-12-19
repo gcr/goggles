@@ -62,7 +62,7 @@ function Picker(onPickColor, onPickBrush) {
             color:'#000',
             margin:0
           });
-  var brushes = [2,5,10,15,20]
+  var brushes = [1,2,5,10,15,20]
     .map(function(size) {
         var brushJq = $("<div>")
               .css({
@@ -90,7 +90,7 @@ function Picker(onPickColor, onPickBrush) {
         brushJq.appendTo(self.brushesJq);
         return brushJq;
     });
-  brushes[0].click();
+  brushes[2].click();
 }
 Picker.prototype.del = function() {
   this.colorsJq.fadeOut('fast', bind(this,function(){this.colorsJq.remove();}));
