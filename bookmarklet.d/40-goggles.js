@@ -71,13 +71,13 @@ Goggles.prototype.stop = function() {
   // Destroy a goggles object with optional callback
   this.active = false;
   this.picker.del();
+  window.onresize = null;
+  window.onscroll = null;
+  if (this.historyStream) {
+    this.historyStream.stop();
+  }
+  clearTimeout(this.resizeTimer);
   $(this.canvas).fadeOut('fast', bind(this, function() {
-      window.onresize = null;
-      window.onscroll = null;
-      if (this.historyStream) {
-        this.historyStream.stop();
-      }
-      clearTimeout(this.resizeTimer);
       $(this.canvas).remove();
     }));
 };
