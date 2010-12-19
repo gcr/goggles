@@ -83,9 +83,9 @@ function Picker(onPickColor, onPickBrush) {
         brushJq.click(function(){
           if (brushJq == chosenBrush) { return; }
             onPickBrush(size);
+            chosenBrush.css({'background-color': "#fff"});
             chosenBrush = brushJq;
-            //chosenColor.text("");
-            //colorjq.html("&bull;");
+            chosenBrush.css({'background-color': "#21f"});
           });
         brushJq.appendTo(self.brushesJq);
         return brushJq;
