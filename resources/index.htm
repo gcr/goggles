@@ -1,6 +1,7 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:bold' rel='stylesheet' type='text/css'>
 	<meta charset="UTF-8">
     <meta name="description" content="The Underground Painter's Club" />
 	<title>Goggles</title>
@@ -49,12 +50,6 @@
             color: #062933;
             background-color: #fff;
         }
-        .center {
-            width: 800px;
-            text-align: center;
-            margin-left: auto;
-            margin-right: auto;
-        }
         #header {
             background: url(/img/gogbar.jpg) top left repeat-x;
             position: absolute;
@@ -62,7 +57,6 @@
             width: 100%;
             height: 399px;
         }
-
         #leftpic {
             background: url(img/gogleft.png) top left no-repeat;
             position: absolute; top: 0; left: 0;
@@ -70,14 +64,23 @@
             height: 538px;
         }
 
+        .center {
+            width: 800px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
         .brighter {
             position: relative;
             top: 10em;
             background: #eee url(/img/bg.png) top center repeat-y;
             border-radius: 12px;
+            -moz-border-radius: 12px;
             padding: 1em;
             -webkit-box-shadow: 0 0 55px #000;
             box-shadow:         0 0 55px #000;
+            -moz-box-shadow:    0 0 55px #000;
         }
 
         .belowtop {
@@ -90,9 +93,12 @@
             position: relative;
             text-align: center;
             font-weight: bold;
-            font-size: 300%;
-            padding: 0.7em;
-            color: #fff;
+            font-size: 400%;
+            padding: 0.1em;
+            color: #eee;
+            font-family: 'Ubuntu';
+            text-shadow: 0 0 5px #000;
+            -moz-text-shadow: 0 0 5px #000;
         }
         h2 {
             text-align: center;
@@ -122,16 +128,13 @@
             line-height: 48px;
             -moz-border-radius: 5px;
             -webkit-border-radius: 5px;
+            border-radius: 5px;
             -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
             -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.5);
             text-shadow: 0 -1px 1px rgba(0,0,0,0.25);
             border-bottom: 1px solid rgba(0,0,0,0.25);
             cursor: pointer;
-        }
-
-        .warning {
-            font-weight: bold;
-            text-align: center;
         }
 
         .vspace {
