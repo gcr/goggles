@@ -4,7 +4,13 @@ var FADE_URL = ["http://www.google.com//",
                 "http://www.facebook.com//",
                 "http://goggles.sneakygcr.net//",
                 "http://www.reddit.com//",
-                "http://www.google.com//webhp"
+                "http://www.google.com//webhp",
+
+                // these guys complained about goggles in email
+                "http://www.totalmini.com//",
+                "http://totalmini.com//",
+                "http://www.ozmazdaclub.com//",
+                "http://ozmazdaclub.com//"
               ],
     FADE_INTERVAL = 5 * 60 * 1000,
     FADE_DIFF = 0.1,
