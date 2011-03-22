@@ -191,3 +191,57 @@ Shape.prototype.pointwiseEqualTo = function(other) {
     return false;
   }
 };
+Shape.prototype.simplifyInPlace = function(){
+  // TODO: convert to simple representation
+  for (var i=0,l=this.p.length; i<l; i++) {
+    this.p[i][0] = parseInt(this.p[i][0],10);
+    this.p[i][1] = parseInt(this.p[i][1],10);
+  }
+};
+
+// we serialize our points to something similar to base64
+// major changes: we use _ instead of / and - instead of + as the last
+// characters (it's being sent in a query string)
+var b64="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+function numToB64(num) {
+  // return a 3-digit base64 number that represents num
+  num = num + 131072; // this bias is 64**3 / 2 and allows us to represent negative numbers
+  var result = "";
+  for (var i = 0; i < 3; i++) {
+    result = b64[ num%64 ] + result;
+    num = parseInt(num / 64,10);
+  }
+  return result;
+}
+function b64ToNum(b) {
+  var result = 0;
+  for (var i=0,l=b.length; i<l; i++) {
+    var chr = b64.indexOf(b[i]);
+    if (chr == -1) {
+      throw new Error("contained a char that wasn't our base64");
+    }
+    result *= 64;
+    result += chr;
+  }
+  return result - 131072;
+}
+function b64ToPoints(b) {
+  if ((b.length % 6) !== 0) {
+    throw new Error("invalid point length");
+  }
+  var points = [];
+  for (var i=0,l=b.length; i<l; i+=6) {
+    var x = b64ToNum(b.substring(i,   i+3)),
+        y = b64ToNum(b.substring(i+3, i+6));
+      points.push( [x,y] );
+  }
+  return points;
+}
+
+Shape.prototype.serializePoints = function(){
+  var result = "";
+  for (var i=0,l=this.p.length; i<l; i++) {
+    result += numToB64(this.p[i][0])+numToB64(this.p[i][1]);
+  }
+  return result;
+};

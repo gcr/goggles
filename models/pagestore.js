@@ -49,20 +49,49 @@ Pagestore.prototype.streamPageUpdates = function(key, since, cb) {
   return this.get(key).streamPageUpdates(since, cb);
 };
 
-function unserializepoints(points) {
-  // This function turns a string with commas and semicolons into a new one.
-  return points.split(';').map(function(point) {
-      var p = point.split(',');
-      return [parseFloat(p[0]),parseFloat(p[1])];
-    });
-  // note that obviously this requires more validation than THAT. psh.
+// we serialize our points to something similar to base64
+// major changes: we use _ instead of / and - instead of + as the last
+// characters (it's being sent in a query string)
+var b64="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+function numToB64(num) {
+  // return a 3-digit base64 number that represents num
+  num = num + 131072; // this bias is 64**3 / 2 and allows us to represent negative numbers
+  var result = "";
+  for (var i = 0; i < 3; i++) {
+    result = b64[ num%64 ] + result;
+    num = parseInt(num / 64,10);
+  }
+  return result;
 }
-
+function b64ToNum(b) {
+  var result = 0;
+  for (var i=0,l=b.length; i<l; i++) {
+    var chr = b64.indexOf(b[i]);
+    if (chr == -1) {
+      throw new Error("contained a char that wasn't our base64");
+    }
+    result *= 64;
+    result += chr;
+  }
+  return result - 131072;
+}
+function b64ToPoints(b) {
+  if ((b.length % 6) !== 0) {
+    throw new Error("invalid point length");
+  }
+  var points = [];
+  for (var i=0,l=b.length; i<l; i+=6) {
+    var x = b64ToNum(b.substring(i,   i+3)),
+        y = b64ToNum(b.substring(i+3, i+6));
+      points.push( [x,y] );
+  }
+  return points;
+}
 
 Pagestore.prototype.verifyShape = function(points, t, r,g,b,a) {
   // Returns a new shape with given points (p), thickness t, color rgba.
-  // TODO: move this elsewhere; it doesn't belong here. It belongs in the view
-  // object or something.
+  // TODO: this REALLY REALLY REALLY doesn't belong here! booooo!
+  // at least make this a static method for heavens sake!
   try {
     t = t? parseFloat(t):3;
     r = r? parseFloat(r):0;
@@ -70,15 +99,7 @@ Pagestore.prototype.verifyShape = function(points, t, r,g,b,a) {
     b = b? parseFloat(b):0;
     a = a? parseFloat(a):1;
     // now verify points
-    points = unserializepoints(points)
-      .filter(function(point) {
-          if (point instanceof Array) {
-            var x=point[0], y=point[1];
-            if ((x === 0 || x) && (y===0||y)) {
-              return [x, y];
-            }
-          }
-        });
+    points = b64ToPoints(points);
     if (points.length===0) {
       console.log(new Error("No points").stack);
       return false;

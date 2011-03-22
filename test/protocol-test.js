@@ -44,14 +44,14 @@ vows.describe('Client-server protocol').addBatch({
   'can add shapes.': {
     topic: getJSON({page: 'http://shape-add//',
           t: 15, r: 0, g: 25, b: 250, a: 0,
-          p: "12,35;35,99;0,-235;",add: 't'}),
+          p: "gAMgAjgAjgBjgAAf8V",add: 't'}),
     'This should return *true*.': herr(function(page){
         assert.isTrue(page);
     }),
     'When adding the same shape again,': {
       topic: getJSON({page: 'http://shape-add//',
           t: 15, r: 0, g: 25, b: 250, a: 0,
-          p: "12,35;35,99;0,-235;",add: 't'}),
+          p: "gAMgAjgAjgBjgAAf8V",add: 't'}),
       'it should detect the new shape as a duplicate and return *false*':
         herr(function(page){
           assert.isFalse(page);
@@ -80,16 +80,16 @@ vows.describe('Client-server protocol').addBatch({
   'can add many shapes': {
     topic: getJSON({page: 'http://many-shapes-add//',
         t: 15, r: 0, g: 25, b: 250, a: 0,
-        p: "12,35;35,99;0,-235;",add: 't'}),
+        p: "gAMgAjgAjgBjgAAf8V",add: 't'}),
     '.':{
     topic: getJSON({page: 'http://many-shapes-add//',
         t: 15, r: 0, g: 25, b: 250, a: 0,
-        p: "1,2;3,5;9,19;",add: 't'}),
+        p: "gABgACgADgAFgAJgAT",add: 't'}),
     '.':{
     topic: getJSON({page: 'http://many-shapes-add//',
         // todo! change the colors and keep the points the same.
         t: 15, r: 0, g: 25, b: 250, a: 0,
-        p: "1,2;3,7;9,19;",add: 't'}),
+        p: "gABgACgADgAHgAJgAT",add: 't'}),
     '.': {
       topic: getJSON({page: 'http://many-shapes-add//'}),
       'the page should have the shapes': herr(function(page){
@@ -125,7 +125,7 @@ vows.describe('Client-server protocol').addBatch({
           'we can still add more shapes.': {
             topic: getJSON({page: 'http://many-shapes-add//',
                 t: 1, r: 2.35, g: 25, b: 50, a: 0,
-                p: "99,-2350;33,22;", add: 't'}),
+                p: "gBjfbSgAhgAW", add: 't'}),
             'The new shape': {
               topic: getJSON({page: 'http://many-shapes-add//'}),
               'should be present': herr(function(page){
@@ -151,7 +151,7 @@ vows.describe('Client-server protocol').addBatch({
     setTimeout(function(){
       getJSON({page: 'http://streaming-test//',
         t: 1, r: 0, g: 25, b: 250, a: 0,
-        p: "1,2;3,4;5,6;",add: 't'},function(){})();
+        p:"gABgACgADgAEgAFgAG",add: 't'},function(){})();
     },25);
   },
   'they should be reported': herr(function(data){

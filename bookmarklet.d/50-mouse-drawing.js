@@ -53,6 +53,7 @@ Goggles.prototype.beginDrawing = function(ev){
     self.waitingShapes.push(curshape); // add to our list of shapes we're waiting on
   }
   function finishShape() {
+    curshape.simplifyInPlace();
     if (curshape.p.length>=2) {
       self.sendShape(curshape);
     }

@@ -106,14 +106,6 @@ function deleteShapeWithID(list, id) {
   }
 }
 
-function serializePoints(points){
-  // return the points in a suitable format for the server
-  // [[1,2],[3,4]] => "1,2;3,4"
-  return points.map(function(point){
-      return point[0]+","+point[1];
-    }).join(';');
-}
-
 Goggles.prototype.connect = function(cb) {
   // Initial connection from the server.
   cb = cb || function(){};
@@ -153,7 +145,7 @@ Goggles.prototype.sendShape = function(shape) {
   ajaxRequest(this.serverUrl, {
       page: this.url, add: 't',
       r: shape.r, g:shape.g, b:shape.b, a:shape.a,t:shape.t,
-      p:serializePoints(shape.p)},
+      p:shape.serializePoints()},
     function(data){
       if (data && data.err) {
         alert("There was a problem sending the shapes to the server.");
