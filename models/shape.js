@@ -53,18 +53,23 @@ function b64ToPoints(b) {
   return points;
 }
 Shape.fromParams = function(points, t, r,g,b,a){
-  // Returns a new shape with given points (p), thickness t, color rgba.
-  t = t? parseFloat(t):3;
-  r = r? parseFloat(r):0;
-  g = g? parseFloat(g):0;
-  b = b? parseFloat(b):0;
-  a = a? parseFloat(a):1;
-  // now verify points
-  points = b64ToPoints(points);
-  if (points.length===0) {
-    throw new Error("No points");
-  } else {
-    return new Shape(t, r,g,b,a, points, 0);
+  try {
+    // Returns a new shape with given points (p), thickness t, color rgba.
+    t = t? parseFloat(t):3;
+    r = r? parseFloat(r):0;
+    g = g? parseFloat(g):0;
+    b = b? parseFloat(b):0;
+    a = a? parseFloat(a):1;
+    // now verify points
+    points = b64ToPoints(points);
+    if (points.length===0) {
+      throw new Error("No points");
+    } else {
+      return new Shape(t, r,g,b,a, points, 0);
+    }
+  } catch (e) {
+    console.log(e.stack); // wth?
+    return false;
   }
 };
 Shape.fromJSON = function(data){
