@@ -89,7 +89,7 @@ function Shape(thickness, r,g,b,a, points, id) {
   this.b = b;
   this.a = a;
   this.p = points||[];
-  this.id = id || null;
+  this.id = (typeof id == 'undefined')? null : id;
 }
 Shape.fromJSON = function(shape) {
   // Convert an array of shapes to real shapes.
