@@ -74,7 +74,10 @@ Shape.fromParams = function(points, t, r,g,b,a){
 };
 Shape.fromJSON = function(data){
   // this json is assumed to contain normal points (e.g. it's saved on disk)
-  return new Shape(data.t,  data.r,data.g,data.b,data.a, data.p, data.id||0);
+  return new Shape(data.t,  data.r,data.g,data.b,data.a,
+    // sometimes points are stored as floats. boooo.
+    data.p.map(function(point){ return [parseInt(point[0],10), parseInt(point[1],10)]; }),
+    data.id||0);
 };
 
 Shape.prototype.serializePoints = function(){
