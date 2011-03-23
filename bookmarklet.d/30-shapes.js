@@ -189,12 +189,53 @@ Shape.prototype.pointwiseEqualTo = function(other) {
     return false;
   }
 };
+
+function DouglasPeucker(pointList, threshDist, start, end) {
+  // recursively simplify the points in pointList from starting index to ending
+  // index
+  //
+
+  //console.log("Starting at "+start+" to "+end);
+
+  // if they're next to each other
+  if (Math.abs(end-start) <= 1) {
+    return [pointList[start]];
+  }
+  // else, return a list of simplified points
+  // if the furthest vertex is more than some threshhold distance away from the
+  // line defined by pointList[start] -- pointList[end], recurse; otherwise,
+  // just use that line.
+  var maxDistance = 0, maxPointIndex=0,
+      a = pointList[start], b = pointList[end];
+  for (var i=start+1; i<end; i++) {
+    var p = pointList[i],
+        thisDistance = Math.abs( (b[0]-a[0])*(a[1]-p[1]) - (a[0]-p[0])*(b[1]-a[1]) ) /       
+                       Math.sqrt( (b[0]-a[0])*(b[0]-a[0]) + (b[1]-a[1])*(b[1]-a[1]) );
+    if (thisDistance > maxDistance) {
+      maxDistance = thisDistance;
+      maxPointIndex = i;
+    }
+  }
+
+  if (maxDistance > threshDist) {
+    // too big! recurse!
+    //console.log(maxDistance+" is too big, recursing");
+    return DouglasPeucker(pointList,threshDist,start,maxPointIndex).concat(
+           DouglasPeucker(pointList,threshDist,maxPointIndex,end));
+  } else {
+    //console.log(maxDistance+" is enough");
+    return [pointList[start]];
+  }
+}
+
 Shape.prototype.simplifyInPlace = function(){
   // TODO: convert shape to simpler representation
   for (var i=0,l=this.p.length; i<l; i++) {
     this.p[i][0] = parseInt(this.p[i][0],10);
     this.p[i][1] = parseInt(this.p[i][1],10);
   }
+
+  this.p = DouglasPeucker(this.p, 3, 0, this.p.length-1).concat([this.p[this.p.length-1]]);
 };
 
 // we serialize our points to something similar to base64

@@ -55,6 +55,8 @@ Goggles.prototype.beginDrawing = function(ev){
     if (curshape.p.length>=2) {
       self.sendShape(curshape);
     }
+    //console.log(curshape);
+    //self.redraw();
   }
   if (this.shapes !== null) {
     makeShape();
