@@ -82,6 +82,7 @@ function Shape(thickness, r,g,b,a, points, id) {
   // {p: [ [x,y], [x,y], [x,y], ...], points
   //  t: 5                            thickness
   //  r: 250, g: 200, b: 125, a: 0.5  color
+  //  id: 15                          shape ID (for fast deletions)
   // }
   this.t = thickness;
   this.r = r;
@@ -115,6 +116,7 @@ Shape.prototype.drawLast = function(ctx) {
 };
 Shape.prototype.draw = function(ctx) {
   // Draw a given shape if it is in view.
+// this prematurely optimized bounding box test is done elsewhere, I think
 //      if ((p.x + shape.s) > 0 &&
 //          (p.y + shape.s) > 0 &&
 //          (p.x - shape.s) < canvas.width &&
@@ -188,7 +190,7 @@ Shape.prototype.pointwiseEqualTo = function(other) {
   }
 };
 Shape.prototype.simplifyInPlace = function(){
-  // TODO: convert to simple representation
+  // TODO: convert shape to simpler representation
   for (var i=0,l=this.p.length; i<l; i++) {
     this.p[i][0] = parseInt(this.p[i][0],10);
     this.p[i][1] = parseInt(this.p[i][1],10);

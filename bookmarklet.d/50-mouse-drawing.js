@@ -5,8 +5,6 @@
 
 Goggles.prototype.beginErasing = function(ev) {
   // Begin erasing shapes until the mouse button is released.
-  // TODO: work properly by splitting shapes up into points that intersect
-  // circles or not.
   var mdhandler = this.canvas.onmousedown;
   if (this.shapes !== null) {
     // Erase
