@@ -70,7 +70,8 @@ Goggles.prototype.beginDrawing = function(ev){
     });
     this.canvas.onmousemove = bind(this, function(ev) {
         curshape.appendPoint(this.untransform(pointsFromEv(ev)));
-        if (curshape.p.length >= 250) {
+        if (curshape.p.length >= 1000) {
+          //curshape.simplifyInPlace();
           finishShape(curshape);
           makeShape();
           curshape.appendPoint(this.untransform(pointsFromEv(ev)));
