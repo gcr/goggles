@@ -91,10 +91,6 @@ function Shape(thickness, r,g,b,a, points, id) {
   this.p = points||[];
   this.id = (typeof id == 'undefined')? null : id;
 }
-Shape.fromJSON = function(shape) {
-  // Convert an array of shapes to real shapes.
-  return new Shape(shape.t, shape.r,shape.g,shape.b,shape.a, shape.p, shape.id);
-};
 Shape.prototype.appendPoint = function(point) {
   // Append a point to this shape.
   this.p.push(
@@ -244,4 +240,8 @@ Shape.prototype.serializePoints = function(){
     result += numToB64(this.p[i][0])+numToB64(this.p[i][1]);
   }
   return result;
+};
+Shape.fromJSON = function(shape) {
+  // Convert an array of shapes to real shapes.
+  return new Shape(shape.t, shape.r,shape.g,shape.b,shape.a, b64ToPoints(shape.p), shape.id);
 };

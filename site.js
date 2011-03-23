@@ -11,6 +11,7 @@
 var http = require('http'),
     url = require('url'),
     Pagestore = require('./models/pagestore').Pagestore,
+    Shape = require('./models/shape').Shape,
     bmr = require('./views/bookmarklet_renderer'),
     staticfiles = require('./views/static'),
     view = require('./views/view_helpers'),
@@ -47,7 +48,7 @@ exports.makeGogglesServer = function(conf) {
           'page': switchboard.makeDispatchQueryOverloader(
               ['add', 'page','t','r','g','b','a','p'],
               function(req,res, add,page,t,r,g,b,a,p){
-                var shape = ps.verifyShape(p, t, r, g, b, a);
+                var shape = Shape.fromParams(p, t, r, g, b, a);
                 if (shape) {
                   console.log((req.headers['x-forwarded-for']||req.connection.remoteAddress)+" +++ "+page);
                   return ps.addShapeToPage(page, shape, render);

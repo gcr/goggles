@@ -68,7 +68,7 @@ vows.describe('Client-server protocol').addBatch({
       'the page should have the shape we added.': herr(function(page){
           assert.deepEqual(page.shapes, [
               {t: 15, r: 0, g: 25, b: 250, a: 0,
-                p: [[12,35],[35,99],[0,-235]], id: 0}]);
+                p: "gAMgAjgAjgBjgAAf8V", id: 0}]);
       }),
       'the page should advance its history': herr(function(page){
           assert.equal(page.nextUpdate, 1);
@@ -157,7 +157,7 @@ vows.describe('Client-server protocol').addBatch({
   'they should be reported': herr(function(data){
     assert.deepEqual(data, [
         {add_shape: { t: 1, r: 0, g: 25, b: 250, a: 0,
-        p: [[1,2],[3,4],[5,6]],id:0}}
+        p: "gABgACgADgAEgAFgAG",id:0}}
       ]);
   }),
   'and when we delete shapes': {

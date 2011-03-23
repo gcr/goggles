@@ -11,7 +11,8 @@
 // change state happen only one at a time.
 //
 var History = require('./history').History,
-    AsyncLock = require('./async_lock').AsyncLock;
+    AsyncLock = require('./async_lock').AsyncLock,
+    Shape = require('./shape').Shape;
 
 function Page(ks, key, emptyCbTimeout) {
   // Page keeps info on the current page; the keystore and key index us, and
@@ -39,13 +40,13 @@ Page.prototype.get = function(cb) {
         if (diskInfo) {
           // we got info from disk
           self.info = {
-            shapes: diskInfo.shapes.map(function(shape, index){
+            shapes: diskInfo.shapes.map(function(jsonshape, index){
                 // Assign each shape an ID if it does not already have one.
-                if (typeof shape.id == 'undefined' || shape.id === null) {
-                  shape.id = index;
+                if (typeof jsonshape.id == 'undefined' || jsonshape.id === null) {
+                  jsonshape.id = index;
                   diskInfo.nextId = (diskInfo.nextId||index)+1;
                 }
-                return shape;
+                return new Shape.fromJSON(jsonshape);
               }),
               nextId: diskInfo.nextId
             };
@@ -67,7 +68,9 @@ Page.prototype.JSONize = function(cb) {
   var self = this;
   this.get(function(pageInfo) {
       cb({
-          shapes: pageInfo.shapes,
+          shapes: pageInfo.shapes.map(function(shape){
+              return shape.toJSONWithSerializedPoints();
+            }),
           nextUpdate: self.history.time()
         });
     });
@@ -81,7 +84,9 @@ Page.prototype.sync = function(cb) {
   self.get(function(pageInfo) {
     // todo: do we really need that get? /really/ ?
     self.ks.set(self.key, {
-        shapes: pageInfo.shapes,
+        shapes: pageInfo.shapes.map(function(shape){
+            return shape.toJSON();
+          }),
         nextId: pageInfo.nextId
       }, cb);
     });
@@ -98,10 +103,10 @@ Page.prototype.deleteShapeFromPage = function(shapeId, cb) {
         // find shape (pointwise comparison)
         var shapes = pageInfo.shapes,
             foundShape = null;
-        pageInfo.shapes.forEach(function(shape, id) {
+        pageInfo.shapes.forEach(function(shape, index) {
             // todo! keep shapes inside a dictionary
             if (shape.id == shapeId) {
-              foundShape = id;
+              foundShape = index;
             }
           });
         if (foundShape === null) {
@@ -153,7 +158,7 @@ Page.prototype.addShapeToPage = function(shape, cb) {
             } else {
               cb(true);
               self.history.add(
-                {add_shape: shape}
+                {add_shape: shape.toJSONWithSerializedPoints()}
               );
               unlock();
             }
