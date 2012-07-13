@@ -212,7 +212,7 @@ function DouglasPeucker(pointList, threshDist, start, end) {
       a = pointList[start], b = pointList[end];
   for (var i=start+1; i<end; i++) {
     var p = pointList[i],
-        thisDistance = Math.abs( (b[0]-a[0])*(a[1]-p[1]) - (a[0]-p[0])*(b[1]-a[1]) ) /       
+        thisDistance = Math.abs( (b[0]-a[0])*(a[1]-p[1]) - (a[0]-p[0])*(b[1]-a[1]) ) /
                        Math.sqrt( (b[0]-a[0])*(b[0]-a[0]) + (b[1]-a[1])*(b[1]-a[1]) );
     if (thisDistance > maxDistance) {
       maxDistance = thisDistance;
