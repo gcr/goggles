@@ -19,7 +19,7 @@ Goggles.prototype.beginErasing = function(ev) {
         var newpoint = this.untransform(pointsFromEv(ev)),
             removedAShape = false;
         for (var i=0,l=this.shapes.length; i<l; i++) {
-          if (this.shapes[i].pointIntersects(newpoint, this.curBrushSize) ||
+          if (this.shapes[i].pointIntersects(newpoint, this.curBrushSize/2) ||
               this.shapes[i].lineIntersects(curpoint, newpoint)) {
             // delete them
             // todo: we don't want to  KEEP the shape but at the same time we
