@@ -27,6 +27,34 @@ function Picker(onPickColor, onPickBrush) {
   });
   var chosenColor = $();
   // different brush colors!
+
+  // A true color picker!
+  var truecolorpicker = $("<div>").css({"background-color": "#fff",
+                                        "color": "#000",
+                                        "line-height": '64px',
+                                        'font-size': '300%',
+                                        'text-align': 'center',
+                                        width: 32, height: 64});
+  var value_holder = $("<input>");
+  value_holder.change(function(){
+                        var color = value_holder.get(0).value;
+                        truecolorpicker.css({"background-color":color});
+                        onPickColor(hex2rgb(color));
+                        chosenColor.text("");
+                        chosenColor = truecolorpicker;
+                        truecolorpicker.html("&bull;");
+  });
+  this.jscp = new jscolor.color(value_holder.get(0));
+  truecolorpicker.click(function(){
+                          if (self.jscp.isVisible()) {
+                            self.jscp.hidePicker();
+                          } else {
+                            self.jscp.showPicker();
+                          }
+                        });
+  truecolorpicker.appendTo(self.colorsJq);
+
+  // A nice small palette for the rest of em!
   var colors = ["#000", "#fff", "#e50", "#fa0", "#1ba", "#e07", "#ab0"]
     .map(function(color) {
       var colorjq = $("<div>").css({"background-color": color,
@@ -97,6 +125,7 @@ function Picker(onPickColor, onPickBrush) {
 Picker.prototype.del = function() {
   this.colorsJq.fadeOut('fast', bind(this,function(){this.colorsJq.remove();}));
   this.brushesJq.fadeOut('fast', bind(this,function(){this.brushesJq.remove();}));
+  this.jscp.hidePicker();
 };
 Picker.prototype.show = function() {
   this.brushesJq.hide().appendTo($("body")).slideDown('medium');
