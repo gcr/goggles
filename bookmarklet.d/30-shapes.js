@@ -68,10 +68,11 @@ function pointNear(p, radius,  a,b) {
       return false;
     }
 
-
+    var denominator = Math.sqrt( (b[0]-a[0])*(b[0]-a[0]) + (b[1]-a[1])*(b[1]-a[1]) );
+    if (denominator==0) { return true; }
     // see http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html
-    return Math.abs( (b[0]-a[0])*(a[1]-p[1]) - (a[0]-p[0])*(b[1]-a[1]) ) /
-      Math.sqrt( (b[0]-a[0])*(b[0]-a[0]) + (b[1]-a[1])*(b[1]-a[1]) ) <= radius;
+    return (Math.abs( (b[0]-a[0])*(a[1]-p[1]) - (a[0]-p[0])*(b[1]-a[1]) ) /
+            denominator) <= radius;
 
 }
 
@@ -159,7 +160,9 @@ Shape.prototype.pointIntersects = function(p, radius) {
   }
   for (var i=0,l=this.p.length-1; i<l; i++) {
     var a=this.p[i], b=this.p[i+1];
+    //console.log("is ",p," near",a,b," with radius ",radius,"?");
     if (pointNear(p, radius, a, b)) {
+      //console.log("yes, should remove");
       return true;
     }
   }
