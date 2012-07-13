@@ -30,24 +30,31 @@ function Picker(onPickColor, onPickBrush) {
 
   // A true color picker!
   var truecolorpicker = $("<div>").css({"background-color": "#fff",
+                                        "background-image":
+                                        "url("+window.GOGGLE_SERVER+"/../img/color-picker.png)",
                                         "color": "#000",
                                         "line-height": '64px',
                                         'font-size': '300%',
                                         'text-align': 'center',
                                         width: 32, height: 64});
   var value_holder = $("<input>");
-  value_holder.change(function(){
-                        var color = value_holder.get(0).value;
-                        truecolorpicker.css({"background-color":color});
-                        onPickColor(hex2rgb(color));
-                        chosenColor.text("");
-                        chosenColor = truecolorpicker;
-                        truecolorpicker.html("&bull;");
-  });
+  function make_colorpicker_active(){
+    var color = value_holder.get(0).value;
+    truecolorpicker.css({"background-color":color});
+    onPickColor(hex2rgb(color));
+    chosenColor.text("");
+    chosenColor = truecolorpicker;
+    truecolorpicker.html("&bull;");
+  }
+  value_holder.change(make_colorpicker_active);
   this.jscp = new jscolor.color(value_holder.get(0));
   truecolorpicker.click(function(){
                           if (self.jscp.isVisible()) {
-                            self.jscp.hidePicker();
+                            if (truecolorpicker == chosenColor) {
+                              self.jscp.hidePicker();
+                            } else {
+                              make_colorpicker_active();
+                            }
                           } else {
                             self.jscp.showPicker();
                           }
