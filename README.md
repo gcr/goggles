@@ -1,6 +1,8 @@
 (goggles)
 =========
 
+***See it in action at [http://goggles.sneakygcr.net][sneakygcr]!***
+
 A little system in the tradition of [hoodwinkd][hoodwinkd], goggles lets you peer
 behind the webpages you visit and draw things that other goggles users can see.
 It's like an alternate dimension full of graffiti.
