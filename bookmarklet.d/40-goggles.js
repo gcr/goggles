@@ -8,7 +8,8 @@ function Goggles(ajaxroot) {
     position: "fixed",
     "z-index": "100000",
     top: "0",
-    left: "0"
+    left: "0",
+    "pointer-events": "auto"
   }).appendTo(document.body)[0];
 
   this.url = getUrl();
