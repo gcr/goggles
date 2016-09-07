@@ -14,7 +14,7 @@ var path = require('path'),
 function load() {
   bookmarkletSource = fs
         .readdirSync(BOOKMARKLETD_DIR)
-        .map(path.basename)
+        .map(function (s) { return path.basename(s); })
         .sort()
         .filter(function(filename){
             return filename.match(/\.js$/i);
