@@ -163,7 +163,7 @@ function serveFile(webroot, urlPath, req, res) {
   var filePath = urlPath? path.normalize(path.join(webroot, urlPath.join("/"))) : webroot;
   assert.ok(beginsWith(filePath, webroot), "Tried to serve a file outside the web root folder");
 
-  path.exists(filePath,
+  fs.exists(filePath,
     function(exists) {
       if (!exists) {
         res.writeHead(404);
